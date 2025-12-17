@@ -28,7 +28,7 @@ export const NetworkGraph = () => {
     window.addEventListener('resize', resize);
 
     const nodes: Node[] = [];
-    const nodeCount = 25;
+    const nodeCount = 30;
     const width = canvas.offsetWidth;
     const height = canvas.offsetHeight;
 
@@ -37,8 +37,8 @@ export const NetworkGraph = () => {
       nodes.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
         radius: Math.random() * 3 + 2,
         delay: Math.random() * Math.PI * 2,
       });
@@ -66,15 +66,16 @@ export const NetworkGraph = () => {
           const dy = otherNode.y - node.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
 
-          if (distance < 150) {
-            const opacity = (1 - distance / 150) * 0.4;
+          if (distance < 180) {
+            const opacity = (1 - distance / 180) * 0.35;
             ctx.beginPath();
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(otherNode.x, otherNode.y);
             
+            // Coral to teal gradient
             const gradient = ctx.createLinearGradient(node.x, node.y, otherNode.x, otherNode.y);
-            gradient.addColorStop(0, `rgba(14, 165, 233, ${opacity})`);
-            gradient.addColorStop(1, `rgba(168, 85, 247, ${opacity})`);
+            gradient.addColorStop(0, `rgba(235, 115, 75, ${opacity})`);
+            gradient.addColorStop(1, `rgba(45, 175, 140, ${opacity})`);
             
             ctx.strokeStyle = gradient;
             ctx.lineWidth = 1;
@@ -86,21 +87,21 @@ export const NetworkGraph = () => {
         const pulse = Math.sin(Date.now() / 1000 + node.delay) * 0.3 + 1;
         const gradient = ctx.createRadialGradient(
           node.x, node.y, 0,
-          node.x, node.y, node.radius * pulse * 2
+          node.x, node.y, node.radius * pulse * 2.5
         );
-        gradient.addColorStop(0, 'rgba(14, 165, 233, 1)');
-        gradient.addColorStop(0.5, 'rgba(14, 165, 233, 0.5)');
-        gradient.addColorStop(1, 'rgba(14, 165, 233, 0)');
+        gradient.addColorStop(0, 'rgba(235, 115, 75, 1)');
+        gradient.addColorStop(0.4, 'rgba(235, 115, 75, 0.5)');
+        gradient.addColorStop(1, 'rgba(235, 115, 75, 0)');
 
         ctx.beginPath();
-        ctx.arc(node.x, node.y, node.radius * pulse * 2, 0, Math.PI * 2);
+        ctx.arc(node.x, node.y, node.radius * pulse * 2.5, 0, Math.PI * 2);
         ctx.fillStyle = gradient;
         ctx.fill();
 
         // Core of the node
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(14, 165, 233, 1)';
+        ctx.fillStyle = 'rgba(235, 115, 75, 1)';
         ctx.fill();
       });
 
@@ -118,7 +119,7 @@ export const NetworkGraph = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full opacity-60"
+      className="absolute inset-0 w-full h-full opacity-50"
       style={{ width: '100%', height: '100%' }}
     />
   );
