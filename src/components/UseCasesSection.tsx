@@ -1,4 +1,5 @@
 import { MessageSquare, FileSearch, Users, Workflow, Bot, Database } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const useCases = [
   {
@@ -39,6 +40,40 @@ const useCases = [
   },
 ];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut" as const,
+    },
+  },
+};
+
+const headerVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.8,
+      ease: "easeOut" as const,
+    },
+  },
+};
+
 export const UseCasesSection = () => {
   return (
     <section id="use-cases" className="py-28 relative overflow-hidden">
@@ -48,39 +83,66 @@ export const UseCasesSection = () => {
       
       <div className="container relative z-10 px-4">
         {/* Section Header */}
-        <div className="max-w-3xl mx-auto text-center mb-20">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-semibold uppercase tracking-wider mb-6 border border-accent/20">
+        <motion.div 
+          className="max-w-3xl mx-auto text-center mb-20"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={headerVariants}
+        >
+          <motion.span 
+            className="inline-block px-4 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-semibold uppercase tracking-wider mb-6 border border-accent/20"
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
             Use Cases
-          </span>
+          </motion.span>
           <h2 className="font-heading text-3xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
             Endless <span className="gradient-text-multi">Possibilities</span>
           </h2>
           <p className="text-muted-foreground text-lg md:text-xl leading-relaxed">
             From simple chatbots to complex enterprise systems, MaxMemory adapts to your needs.
           </p>
-        </div>
+        </motion.div>
 
         {/* Use Cases Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
+        <motion.div 
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+          variants={containerVariants}
+        >
           {useCases.map((useCase, index) => (
-            <div
+            <motion.div
               key={useCase.title}
-              className="group glass-card card-shine glow-border p-6 opacity-0 animate-slide-up relative"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              className="group glass-card card-shine glow-border p-6 relative"
+              variants={itemVariants}
+              whileHover={{ 
+                y: -10, 
+                scale: 1.03,
+                transition: { duration: 0.3 }
+              }}
             >
               {/* Hover gradient overlay */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${useCase.gradient} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-500 rounded-2xl`} />
+              <div className={`absolute inset-0 bg-gradient-to-br ${useCase.gradient} opacity-0 group-hover:opacity-[0.05] transition-opacity duration-500 rounded-2xl`} />
               
               <div className="relative z-10">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${useCase.gradient} flex items-center justify-center mb-5 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg`}>
+                <motion.div 
+                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${useCase.gradient} flex items-center justify-center mb-5 shadow-lg`}
+                  whileHover={{ scale: 1.15, rotate: 10 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <useCase.icon className="w-6 h-6 text-primary-foreground" />
-                </div>
+                </motion.div>
                 <h3 className="font-heading text-lg font-semibold mb-2 group-hover:text-primary transition-colors">{useCase.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{useCase.description}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
