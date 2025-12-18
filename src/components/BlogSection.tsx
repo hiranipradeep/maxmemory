@@ -12,7 +12,7 @@ const blogs = [
     readTime: '8 min read',
     category: 'Technical',
     image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop&q=60',
-    color: 'from-violet-500/20 to-purple-600/20',
+    color: 'from-violet-900 to-purple-950',
   },
   {
     title: 'Building Personalized AI Assistants at Scale',
@@ -22,7 +22,7 @@ const blogs = [
     readTime: '6 min read',
     category: 'Tutorial',
     image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&auto=format&fit=crop&q=60',
-    color: 'from-cyan-500/20 to-blue-600/20',
+    color: 'from-cyan-900 to-blue-950',
   },
   {
     title: 'The Future of RAG: Beyond Simple Retrieval',
@@ -32,7 +32,7 @@ const blogs = [
     readTime: '10 min read',
     category: 'Research',
     image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&auto=format&fit=crop&q=60',
-    color: 'from-emerald-500/20 to-teal-600/20',
+    color: 'from-emerald-900 to-teal-950',
   },
   {
     title: 'Memory Optimization Techniques for LLM Applications',
@@ -42,7 +42,7 @@ const blogs = [
     readTime: '7 min read',
     category: 'Performance',
     image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=60',
-    color: 'from-amber-500/20 to-orange-600/20',
+    color: 'from-amber-900 to-orange-950',
   },
 ];
 
@@ -93,7 +93,7 @@ const BlogCard = ({ blog, index, totalCards, containerRef }: BlogCardProps) => {
         className="h-full w-full cursor-pointer group"
       >
         <div 
-          className={`relative h-full w-full rounded-3xl overflow-hidden bg-gradient-to-br ${blog.color} border border-border/50 backdrop-blur-sm shadow-2xl`}
+          className={`relative h-full w-full rounded-3xl overflow-hidden bg-gradient-to-br ${blog.color} border border-border shadow-2xl`}
         >
           {/* Background Image with Overlay */}
           <div className="absolute inset-0">
