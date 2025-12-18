@@ -1,20 +1,36 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Zap } from 'lucide-react';
+import { Menu, X, Zap, ChevronDown, Heart, GraduationCap, TrendingUp, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SignInDialog } from '@/components/SignInDialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const navLinks = [
+  { name: 'Home', href: '/' },
   { name: 'About', href: '/about' },
   { name: 'Pricing', href: '/pricing' },
   { name: 'Blog', href: '/blog' },
   { name: 'Contact', href: '/contact' },
 ];
 
+const useCases = [
+  { name: 'Healthcare', href: '/use-cases/health', icon: Heart, color: 'text-primary' },
+  { name: 'Education', href: '/use-cases/education', icon: GraduationCap, color: 'text-accent' },
+  { name: 'Finance', href: '/use-cases/finance', icon: TrendingUp, color: 'text-emerald-400' },
+  { name: 'Enterprise', href: '/use-cases/enterprise', icon: Building2, color: 'text-orange-400' },
+];
+
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [signInOpen, setSignInOpen] = useState(false);
   const location = useLocation();
+
+  const isUseCasePath = location.pathname.startsWith('/use-cases');
 
   return (
     <>
@@ -28,7 +44,7 @@ export const Navbar = () => {
               <span className="font-heading font-bold text-xl text-foreground tracking-tight">MaxMemory</span>
             </Link>
 
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-6">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
@@ -43,6 +59,29 @@ export const Navbar = () => {
                   }`} />
                 </Link>
               ))}
+              
+              {/* Use Cases Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className={`flex items-center gap-1 text-sm font-medium transition-colors duration-200 ${
+                  isUseCasePath ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                }`}>
+                  Use Cases
+                  <ChevronDown className="w-4 h-4" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-card/95 backdrop-blur-xl border-border/50 min-w-[200px]">
+                  {useCases.map((useCase) => (
+                    <DropdownMenuItem key={useCase.name} asChild>
+                      <Link 
+                        to={useCase.href} 
+                        className="flex items-center gap-3 cursor-pointer"
+                      >
+                        <useCase.icon className={`w-4 h-4 ${useCase.color}`} />
+                        <span>{useCase.name}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             <div className="hidden md:flex items-center gap-3">
@@ -75,6 +114,23 @@ export const Navbar = () => {
                     {link.name}
                   </Link>
                 ))}
+                
+                {/* Mobile Use Cases */}
+                <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Use Cases
+                </div>
+                {useCases.map((useCase) => (
+                  <Link
+                    key={useCase.name}
+                    to={useCase.href}
+                    className="px-4 py-2 flex items-center gap-3 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <useCase.icon className={`w-4 h-4 ${useCase.color}`} />
+                    {useCase.name}
+                  </Link>
+                ))}
+                
                 <div className="flex flex-col gap-2 mt-4 px-4">
                   <Button variant="ghost" className="w-full justify-center" onClick={() => { setIsOpen(false); setSignInOpen(true); }}>
                     Sign In

@@ -11,6 +11,10 @@ import Blog from "./pages/Blog";
 import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import UseCaseHealth from "./pages/UseCaseHealth";
+import UseCaseEducation from "./pages/UseCaseEducation";
+import UseCaseFinance from "./pages/UseCaseFinance";
+import UseCaseEnterprise from "./pages/UseCaseEnterprise";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +32,10 @@ const App = () => (
           <Route path="/blog" element={<Blog />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/use-cases/health" element={<UseCaseHealth />} />
+          <Route path="/use-cases/education" element={<UseCaseEducation />} />
+          <Route path="/use-cases/finance" element={<UseCaseFinance />} />
+          <Route path="/use-cases/enterprise" element={<UseCaseEnterprise />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
