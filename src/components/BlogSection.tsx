@@ -100,9 +100,9 @@ const BlogCard = ({ blog, index, totalCards, containerRef }: BlogCardProps) => {
             <img 
               src={blog.image} 
               alt={blog.title}
-              className="w-full h-full object-cover opacity-30 group-hover:opacity-40 transition-opacity duration-500"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/40" />
           </div>
 
           {/* Content */}
