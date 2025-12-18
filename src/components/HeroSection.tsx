@@ -1,131 +1,264 @@
 import { ArrowRight, FileText, Link2, Video, Code2, Database, Brain, Sparkles, Zap, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
-import { useRef, useEffect, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, Sphere, MeshDistortMaterial } from '@react-three/drei';
-import * as THREE from 'three';
+import { useRef, useEffect, useCallback } from 'react';
 
-// 3D Glowing Core Component
-const GlowingCore = () => {
-  const meshRef = useRef<THREE.Mesh>(null);
+// Neural Network Background with Zoom Animation
+const NeuralNetworkBackground = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x = state.clock.elapsedTime * 0.2;
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.3;
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    let animationId: number;
+    let time = 0;
+    
+    // Node structure
+    interface Node {
+      x: number;
+      y: number;
+      baseX: number;
+      baseY: number;
+      radius: number;
+      pulsePhase: number;
+      layer: number;
     }
-  });
-
-  return (
-    <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
-      <Sphere ref={meshRef} args={[1, 64, 64]}>
-        <MeshDistortMaterial
-          color="#8b5cf6"
-          attach="material"
-          distort={0.4}
-          speed={2}
-          roughness={0.2}
-          metalness={0.8}
-        />
-      </Sphere>
-      {/* Inner glow */}
-      <Sphere args={[0.8, 32, 32]}>
-        <meshBasicMaterial color="#c4b5fd" transparent opacity={0.3} />
-      </Sphere>
-      {/* Outer glow */}
-      <Sphere args={[1.3, 32, 32]}>
-        <meshBasicMaterial color="#7c3aed" transparent opacity={0.1} />
-      </Sphere>
-    </Float>
-  );
-};
-
-// Floating Node Component for 3D scene
-const FloatingNode = ({ position, color, scale = 0.15 }: { position: [number, number, number]; color: string; scale?: number }) => {
-  const meshRef = useRef<THREE.Mesh>(null);
-  
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime + position[0]) * 0.1;
-    }
-  });
-
-  return (
-    <mesh ref={meshRef} position={position}>
-      <sphereGeometry args={[scale, 16, 16]} />
-      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.5} />
-    </mesh>
-  );
-};
-
-// Neural Connection Lines
-const NeuralLines = () => {
-  const linesRef = useRef<THREE.Group>(null);
-  
-  useFrame((state) => {
-    if (linesRef.current) {
-      linesRef.current.rotation.z = state.clock.elapsedTime * 0.05;
-    }
-  });
-
-  const lines = [];
-  for (let i = 0; i < 12; i++) {
-    const angle = (i / 12) * Math.PI * 2;
-    const radius = 2;
-    lines.push({
-      start: [0, 0, 0] as [number, number, number],
-      end: [Math.cos(angle) * radius, Math.sin(angle) * radius, (Math.random() - 0.5) * 0.5] as [number, number, number],
-    });
-  }
-
-  return (
-    <group ref={linesRef}>
-      {lines.map((line, i) => (
-        <line key={i}>
-          <bufferGeometry>
-            <bufferAttribute
-              attach="attributes-position"
-              count={2}
-              array={new Float32Array([...line.start, ...line.end])}
-              itemSize={3}
-            />
-          </bufferGeometry>
-          <lineBasicMaterial color="#8b5cf6" transparent opacity={0.3} />
-        </line>
-      ))}
-    </group>
-  );
-};
-
-// 3D Scene Component
-const Scene3D = () => {
-  const nodePositions: [number, number, number][] = [
-    [-2, 1, 0], [2, 1, 0], [-1.5, -1, 0.5], [1.5, -1, -0.5],
-    [-2.5, 0, 0], [2.5, 0, 0], [0, 2, 0], [0, -2, 0],
-    [-1, 1.5, 0.3], [1, 1.5, -0.3], [-1, -1.5, -0.3], [1, -1.5, 0.3],
-  ];
-
-  const colors = ['#8b5cf6', '#06b6d4', '#3b82f6', '#a855f7', '#0ea5e9'];
-
-  return (
-    <>
-      <ambientLight intensity={0.3} />
-      <pointLight position={[10, 10, 10]} intensity={1} color="#8b5cf6" />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#06b6d4" />
+    
+    let nodes: Node[] = [];
+    
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      ctx.scale(dpr, dpr);
+      initNodes();
+    };
+    
+    const initNodes = () => {
+      nodes = [];
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const centerX = w / 2;
+      const centerY = h / 2;
       
-      <GlowingCore />
-      <NeuralLines />
+      // Create layered neural network structure
+      const layers = 5;
+      const nodesPerLayer = [4, 6, 8, 6, 4];
       
-      {nodePositions.map((pos, i) => (
-        <FloatingNode 
-          key={i} 
-          position={pos} 
-          color={colors[i % colors.length]} 
-          scale={0.1 + Math.random() * 0.1}
-        />
-      ))}
-    </>
+      for (let layer = 0; layer < layers; layer++) {
+        const layerX = centerX + (layer - 2) * (w * 0.18);
+        const count = nodesPerLayer[layer];
+        
+        for (let i = 0; i < count; i++) {
+          const spacing = h * 0.6 / (count + 1);
+          const y = centerY - (h * 0.3) + spacing * (i + 1);
+          
+          nodes.push({
+            x: layerX + (Math.random() - 0.5) * 30,
+            y: y + (Math.random() - 0.5) * 30,
+            baseX: layerX,
+            baseY: y,
+            radius: 3 + Math.random() * 3,
+            pulsePhase: Math.random() * Math.PI * 2,
+            layer,
+          });
+        }
+      }
+      
+      // Add scattered ambient nodes
+      for (let i = 0; i < 25; i++) {
+        nodes.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          baseX: Math.random() * w,
+          baseY: Math.random() * h,
+          radius: 1 + Math.random() * 2,
+          pulsePhase: Math.random() * Math.PI * 2,
+          layer: -1,
+        });
+      }
+    };
+    
+    const animate = () => {
+      time += 0.008;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      
+      ctx.clearRect(0, 0, w, h);
+      
+      // Zoom effect - oscillates between 0.85 and 1.15
+      const zoomFactor = 1 + Math.sin(time * 0.5) * 0.12;
+      const centerX = w / 2;
+      const centerY = h / 2;
+      
+      // Update node positions with floating and zoom
+      nodes.forEach((node, i) => {
+        const floatX = Math.sin(time + node.pulsePhase) * 8;
+        const floatY = Math.cos(time * 0.7 + node.pulsePhase) * 8;
+        
+        // Apply zoom transformation
+        const dx = node.baseX - centerX;
+        const dy = node.baseY - centerY;
+        node.x = centerX + dx * zoomFactor + floatX;
+        node.y = centerY + dy * zoomFactor + floatY;
+      });
+      
+      // Draw connections between nodes in adjacent layers
+      ctx.lineWidth = 1;
+      nodes.forEach((node, i) => {
+        if (node.layer < 0) return;
+        
+        nodes.forEach((other, j) => {
+          if (i >= j) return;
+          if (other.layer < 0) return;
+          
+          // Connect adjacent layers
+          if (Math.abs(node.layer - other.layer) === 1) {
+            const dist = Math.hypot(node.x - other.x, node.y - other.y);
+            if (dist < 300) {
+              const opacity = (1 - dist / 300) * 0.15;
+              const pulseOpacity = opacity * (0.5 + Math.sin(time * 2 + i * 0.1) * 0.5);
+              
+              // Gradient line
+              const gradient = ctx.createLinearGradient(node.x, node.y, other.x, other.y);
+              gradient.addColorStop(0, `rgba(139, 92, 246, ${pulseOpacity})`);
+              gradient.addColorStop(0.5, `rgba(6, 182, 212, ${pulseOpacity * 1.5})`);
+              gradient.addColorStop(1, `rgba(139, 92, 246, ${pulseOpacity})`);
+              
+              ctx.strokeStyle = gradient;
+              ctx.beginPath();
+              ctx.moveTo(node.x, node.y);
+              ctx.lineTo(other.x, other.y);
+              ctx.stroke();
+            }
+          }
+        });
+      });
+      
+      // Draw ambient connections
+      nodes.forEach((node, i) => {
+        if (node.layer >= 0) return;
+        
+        nodes.forEach((other, j) => {
+          if (i >= j || other.layer >= 0) return;
+          
+          const dist = Math.hypot(node.x - other.x, node.y - other.y);
+          if (dist < 150) {
+            const opacity = (1 - dist / 150) * 0.08;
+            ctx.strokeStyle = `rgba(139, 92, 246, ${opacity})`;
+            ctx.beginPath();
+            ctx.moveTo(node.x, node.y);
+            ctx.lineTo(other.x, other.y);
+            ctx.stroke();
+          }
+        });
+      });
+      
+      // Draw nodes
+      nodes.forEach((node, i) => {
+        const pulse = Math.sin(time * 2 + node.pulsePhase) * 0.5 + 0.5;
+        const glowRadius = node.radius * (2 + pulse);
+        
+        // Outer glow
+        const gradient = ctx.createRadialGradient(
+          node.x, node.y, 0,
+          node.x, node.y, glowRadius * 3
+        );
+        
+        if (node.layer >= 0) {
+          gradient.addColorStop(0, `rgba(139, 92, 246, ${0.4 * pulse})`);
+          gradient.addColorStop(0.5, `rgba(6, 182, 212, ${0.2 * pulse})`);
+          gradient.addColorStop(1, 'rgba(139, 92, 246, 0)');
+        } else {
+          gradient.addColorStop(0, `rgba(139, 92, 246, ${0.2 * pulse})`);
+          gradient.addColorStop(1, 'rgba(139, 92, 246, 0)');
+        }
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, glowRadius * 3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Core node
+        const coreGradient = ctx.createRadialGradient(
+          node.x, node.y, 0,
+          node.x, node.y, node.radius
+        );
+        
+        if (node.layer >= 0) {
+          coreGradient.addColorStop(0, `rgba(255, 255, 255, ${0.9})`);
+          coreGradient.addColorStop(0.5, `rgba(196, 181, 253, ${0.7})`);
+          coreGradient.addColorStop(1, `rgba(139, 92, 246, ${0.5})`);
+        } else {
+          coreGradient.addColorStop(0, `rgba(139, 92, 246, ${0.5})`);
+          coreGradient.addColorStop(1, `rgba(139, 92, 246, ${0.2})`);
+        }
+        
+        ctx.fillStyle = coreGradient;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.radius * (1 + pulse * 0.3), 0, Math.PI * 2);
+        ctx.fill();
+      });
+      
+      // Draw data flow particles along connections
+      const particleCount = 15;
+      for (let p = 0; p < particleCount; p++) {
+        const progress = ((time * 0.3 + p / particleCount) % 1);
+        const layerProgress = progress * 4;
+        const currentLayer = Math.floor(layerProgress);
+        const layerT = layerProgress - currentLayer;
+        
+        if (currentLayer < 4) {
+          const sourceNodes = nodes.filter(n => n.layer === currentLayer);
+          const targetNodes = nodes.filter(n => n.layer === currentLayer + 1);
+          
+          if (sourceNodes.length > 0 && targetNodes.length > 0) {
+            const sourceIdx = p % sourceNodes.length;
+            const targetIdx = (p + currentLayer) % targetNodes.length;
+            const source = sourceNodes[sourceIdx];
+            const target = targetNodes[targetIdx];
+            
+            const px = source.x + (target.x - source.x) * layerT;
+            const py = source.y + (target.y - source.y) * layerT;
+            
+            const particleGradient = ctx.createRadialGradient(px, py, 0, px, py, 4);
+            particleGradient.addColorStop(0, 'rgba(6, 182, 212, 0.8)');
+            particleGradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.4)');
+            particleGradient.addColorStop(1, 'rgba(139, 92, 246, 0)');
+            
+            ctx.fillStyle = particleGradient;
+            ctx.beginPath();
+            ctx.arc(px, py, 4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+      
+      animationId = requestAnimationFrame(animate);
+    };
+    
+    resize();
+    window.addEventListener('resize', resize);
+    animate();
+    
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationId);
+    };
+  }, []);
+  
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 pointer-events-none"
+      style={{ opacity: 0.6 }}
+    />
   );
 };
 
@@ -150,7 +283,6 @@ const DataWidget = ({
       animate={{ opacity: 1, x: 0, scale: 1 }}
       transition={{ duration: 0.8, delay, ease: "backOut" }}
     >
-      {/* Glow effect */}
       <motion.div 
         className={`absolute -inset-1 rounded-2xl bg-gradient-to-r ${color} opacity-0 blur-xl group-hover:opacity-40 transition-opacity duration-500`}
       />
@@ -171,7 +303,6 @@ const DataWidget = ({
           </div>
         </div>
         
-        {/* Pulse indicator */}
         <motion.div 
           className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-500"
           animate={{ scale: [1, 1.2, 1], opacity: [1, 0.5, 1] }}
@@ -182,7 +313,7 @@ const DataWidget = ({
   );
 };
 
-// Data Flow Visualization
+// Data Flow Node
 const DataFlowNode = ({ 
   icon: Icon, 
   label, 
@@ -211,7 +342,6 @@ const DataFlowNode = ({
         animate={{ y: [0, -6, 0] }}
         transition={{ duration: 3 + delay, repeat: Infinity, ease: "easeInOut" }}
       >
-        {/* Glow ring */}
         <motion.div 
           className={`absolute -inset-2 rounded-full ${color} opacity-30 blur-md`}
           animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3] }}
@@ -229,97 +359,6 @@ const DataFlowNode = ({
   );
 };
 
-// SVG Connection Lines with Animation
-const ConnectionLines = () => {
-  return (
-    <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
-      <defs>
-        <linearGradient id="lineGradientBlue" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0" />
-          <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="lineGradientPurple" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#a855f7" stopOpacity="0" />
-          <stop offset="50%" stopColor="#a855f7" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
-        </linearGradient>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-          <feMerge>
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-      
-      {/* Animated paths from left widgets to center */}
-      <motion.path
-        d="M 50 200 Q 200 200 350 350"
-        fill="none"
-        stroke="url(#lineGradientBlue)"
-        strokeWidth="2"
-        filter="url(#glow)"
-        initial={{ pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{ duration: 2, delay: 0.5 }}
-      />
-      <motion.path
-        d="M 80 320 Q 220 320 350 380"
-        fill="none"
-        stroke="url(#lineGradientPurple)"
-        strokeWidth="2"
-        filter="url(#glow)"
-        initial={{ pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{ duration: 2, delay: 0.7 }}
-      />
-      <motion.path
-        d="M 60 440 Q 200 440 350 400"
-        fill="none"
-        stroke="url(#lineGradientBlue)"
-        strokeWidth="2"
-        filter="url(#glow)"
-        initial={{ pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{ duration: 2, delay: 0.9 }}
-      />
-      
-      {/* Paths from center to right nodes */}
-      <motion.path
-        d="M 650 350 Q 800 280 920 200"
-        fill="none"
-        stroke="url(#lineGradientPurple)"
-        strokeWidth="2"
-        filter="url(#glow)"
-        initial={{ pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{ duration: 2, delay: 1.1 }}
-      />
-      <motion.path
-        d="M 650 380 Q 800 380 950 350"
-        fill="none"
-        stroke="url(#lineGradientBlue)"
-        strokeWidth="2"
-        filter="url(#glow)"
-        initial={{ pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{ duration: 2, delay: 1.3 }}
-      />
-      <motion.path
-        d="M 650 400 Q 800 450 900 520"
-        fill="none"
-        stroke="url(#lineGradientPurple)"
-        strokeWidth="2"
-        filter="url(#glow)"
-        initial={{ pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{ duration: 2, delay: 1.5 }}
-      />
-    </svg>
-  );
-};
-
 // Glowing M Logo Component
 const GlowingLogo = () => {
   return (
@@ -329,7 +368,6 @@ const GlowingLogo = () => {
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 1, delay: 0.2, ease: "backOut" }}
     >
-      {/* Outer glow rings */}
       <motion.div 
         className="absolute -inset-16 rounded-full bg-gradient-to-r from-violet-600/20 via-cyan-500/20 to-violet-600/20 blur-3xl"
         animate={{ 
@@ -348,34 +386,21 @@ const GlowingLogo = () => {
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       />
       
-      {/* Main logo container */}
       <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-3xl bg-gradient-to-br from-violet-600 via-purple-600 to-cyan-500 p-[2px] shadow-2xl shadow-violet-500/50">
         <div className="w-full h-full rounded-3xl bg-background/90 backdrop-blur-xl flex items-center justify-center">
           <motion.span 
             className="text-5xl md:text-6xl font-bold bg-gradient-to-br from-violet-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent"
-            animate={{ 
-              textShadow: [
-                "0 0 20px rgba(139, 92, 246, 0)",
-                "0 0 40px rgba(139, 92, 246, 0.5)",
-                "0 0 20px rgba(139, 92, 246, 0)"
-              ]
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
           >
             M
           </motion.span>
         </div>
       </div>
       
-      {/* Orbiting particles */}
       {[...Array(6)].map((_, i) => (
         <motion.div
           key={i}
           className="absolute w-2 h-2 rounded-full bg-violet-400"
-          style={{
-            top: '50%',
-            left: '50%',
-          }}
+          style={{ top: '50%', left: '50%' }}
           animate={{
             x: [
               Math.cos((i / 6) * Math.PI * 2) * 80,
@@ -390,12 +415,7 @@ const GlowingLogo = () => {
             opacity: [0.3, 0.8, 0.3],
             scale: [0.5, 1, 0.5],
           }}
-          transition={{
-            duration: 6,
-            repeat: Infinity,
-            delay: i * 0.5,
-            ease: "easeInOut"
-          }}
+          transition={{ duration: 6, repeat: Infinity, delay: i * 0.5, ease: "easeInOut" }}
         />
       ))}
     </motion.div>
@@ -450,33 +470,15 @@ export const HeroSection = () => {
         <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[100px]" />
       </motion.div>
       
-      {/* Grid pattern overlay */}
-      <div 
-        className="absolute inset-0 opacity-[0.02]"
-        style={{
-          backgroundImage: `linear-gradient(rgba(139, 92, 246, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 92, 246, 0.3) 1px, transparent 1px)`,
-          backgroundSize: '50px 50px'
-        }}
-      />
-
-      {/* 3D Canvas */}
-      <div className="absolute inset-0 pointer-events-none">
-        <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-          <Scene3D />
-        </Canvas>
-      </div>
-
-      {/* Connection Lines SVG */}
-      <div className="absolute inset-0 hidden lg:block">
-        <ConnectionLines />
-      </div>
+      {/* Neural Network Background with Zoom */}
+      <NeuralNetworkBackground />
 
       {/* Left Side - Data Widgets */}
       <motion.div 
         className="absolute left-4 md:left-8 lg:left-16 top-1/2 -translate-y-1/2 space-y-4 hidden md:flex flex-col z-20"
         style={{ x: useTransform(parallaxX, v => v * 0.5), y: useTransform(parallaxY, v => v * 0.5) }}
       >
-        {leftWidgets.map((widget, i) => (
+        {leftWidgets.map((widget) => (
           <DataWidget key={widget.label} {...widget} />
         ))}
       </motion.div>
@@ -486,7 +488,7 @@ export const HeroSection = () => {
         className="absolute inset-0 hidden lg:block z-20"
         style={{ x: useTransform(parallaxX, v => v * -0.3), y: useTransform(parallaxY, v => v * -0.3) }}
       >
-        {rightNodes.map((node, i) => (
+        {rightNodes.map((node) => (
           <DataFlowNode key={node.label} {...node} />
         ))}
       </motion.div>
@@ -527,9 +529,7 @@ export const HeroSection = () => {
             Empower your AI with{' '}
             <motion.span 
               className="bg-gradient-to-r from-violet-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent"
-              animate={{ 
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-              }}
+              animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
               transition={{ duration: 5, repeat: Infinity }}
               style={{ backgroundSize: "200% 200%" }}
             >
@@ -594,14 +594,6 @@ export const HeroSection = () => {
               >
                 <motion.div 
                   className="font-heading text-2xl md:text-3xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent mb-1"
-                  animate={{ 
-                    textShadow: [
-                      "0 0 10px rgba(139, 92, 246, 0)",
-                      "0 0 20px rgba(139, 92, 246, 0.3)",
-                      "0 0 10px rgba(139, 92, 246, 0)"
-                    ]
-                  }}
-                  transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
                 >
                   {stat.value}
                 </motion.div>
