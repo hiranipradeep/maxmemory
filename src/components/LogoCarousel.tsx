@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion';
+
 const logos = [
   {
     name: 'OpenAI',
@@ -54,11 +56,23 @@ const logos = [
 
 export const LogoCarousel = () => {
   return (
-    <section className="py-16 border-y border-border/50 overflow-hidden">
+    <motion.section 
+      className="py-16 border-y border-border/50 overflow-hidden"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8 }}
+    >
       <div className="container px-4 mb-8">
-        <p className="text-center text-sm text-muted-foreground">
+        <motion.p 
+          className="text-center text-sm text-muted-foreground"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
           Trusted by teams building with leading AI providers
-        </p>
+        </motion.p>
       </div>
       
       <div className="relative">
@@ -69,18 +83,20 @@ export const LogoCarousel = () => {
         {/* Scrolling logos */}
         <div className="flex animate-marquee">
           {[...logos, ...logos].map((logo, index) => (
-            <div
+            <motion.div
               key={`${logo.name}-${index}`}
               className="flex items-center justify-center mx-12 text-muted-foreground/60 hover:text-foreground transition-colors duration-300"
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.2 }}
             >
               <div className="flex items-center gap-3">
                 {logo.svg}
                 <span className="font-medium text-lg whitespace-nowrap">{logo.name}</span>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
