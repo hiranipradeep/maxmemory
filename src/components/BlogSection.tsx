@@ -86,15 +86,20 @@ const BlogCard = ({ blog, index, totalCards, containerRef }: BlogCardProps) => {
   return (
     <div 
       className="sticky top-24 h-[70vh] min-h-[500px]"
-      style={{ zIndex: index }}
+      style={{ zIndex: totalCards + index }}
     >
       <motion.article
-        style={{ scale, opacity, y }}
+        style={{ scale, y }}
         className="h-full w-full cursor-pointer group"
       >
-        <div 
-          className={`relative h-full w-full rounded-3xl overflow-hidden bg-gradient-to-br ${blog.color} border border-border shadow-2xl`}
+        <motion.div 
+          style={{ opacity }}
+          className={`relative h-full w-full rounded-3xl overflow-hidden border border-border`}
+          // Add strong top shadow for stacking effect
         >
+          {/* Solid Background to prevent image bleed-through */}
+          <div className="absolute inset-0 bg-background" />
+          
           {/* Background Image with Overlay */}
           <div className="absolute inset-0">
             <img 
@@ -102,8 +107,11 @@ const BlogCard = ({ blog, index, totalCards, containerRef }: BlogCardProps) => {
               alt={blog.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/40" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/30" />
           </div>
+          
+          {/* Top edge shadow for stacking effect */}
+          <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-black/20 to-transparent pointer-events-none" />
 
           {/* Content */}
           <div className="relative h-full flex flex-col justify-end p-8 md:p-12 lg:p-16">
@@ -169,7 +177,7 @@ const BlogCard = ({ blog, index, totalCards, containerRef }: BlogCardProps) => {
               {String(index + 1).padStart(2, '0')}
             </span>
           </div>
-        </div>
+        </motion.div>
       </motion.article>
     </div>
   );
