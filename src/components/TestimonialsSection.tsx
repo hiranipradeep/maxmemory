@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Star, Quote, ArrowRight } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 
 interface Testimonial {
   id: number;
@@ -25,7 +25,7 @@ const testimonials: Testimonial[] = [
     avatar: "SC",
     metric: "40%",
     metricLabel: "Faster Resolution",
-    brandColor: "hsl(160, 60%, 45%)", // Mint green
+    brandColor: "hsl(160, 60%, 45%)",
     image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face",
   },
   {
@@ -37,7 +37,7 @@ const testimonials: Testimonial[] = [
     avatar: "MJ",
     metric: "3x",
     metricLabel: "Search Accuracy",
-    brandColor: "hsl(270, 50%, 55%)", // Soft purple
+    brandColor: "hsl(270, 50%, 55%)",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
   },
   {
@@ -49,7 +49,7 @@ const testimonials: Testimonial[] = [
     avatar: "ER",
     metric: "<50ms",
     metricLabel: "Avg Latency",
-    brandColor: "hsl(45, 90%, 55%)", // Golden yellow
+    brandColor: "hsl(45, 90%, 55%)",
     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
   },
   {
@@ -61,7 +61,7 @@ const testimonials: Testimonial[] = [
     avatar: "DP",
     metric: "2hrs",
     metricLabel: "Integration Time",
-    brandColor: "hsl(200, 70%, 50%)", // Sky blue
+    brandColor: "hsl(200, 70%, 50%)",
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
   },
   {
@@ -73,7 +73,7 @@ const testimonials: Testimonial[] = [
     avatar: "AP",
     metric: "99.9%",
     metricLabel: "Sync Reliability",
-    brandColor: "hsl(340, 60%, 55%)", // Rose pink
+    brandColor: "hsl(340, 60%, 55%)",
     image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=face",
   },
 ];
@@ -81,9 +81,27 @@ const testimonials: Testimonial[] = [
 export const TestimonialsSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const activeTestimonial = testimonials[activeIndex];
+  const sectionRef = useRef<HTMLDivElement>(null);
+  
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"]
+  });
+
+  const scale = useTransform(scrollYProgress, [0, 0.2, 0.5, 0.8, 1], [0.85, 0.95, 1, 0.95, 0.85]);
+  const opacity = useTransform(scrollYProgress, [0, 0.15, 0.5, 0.85, 1], [0.3, 1, 1, 1, 0.3]);
+  const y = useTransform(scrollYProgress, [0, 0.5, 1], [60, 0, -60]);
+  const glowOpacity = useTransform(scrollYProgress, [0, 0.3, 0.5, 0.7, 1], [0, 0.5, 1, 0.5, 0]);
 
   return (
-    <section id="testimonials" className="py-28 relative overflow-hidden bg-background">
+    <div ref={sectionRef} className="relative">
+      {/* Transition glow */}
+      <motion.div className="absolute inset-0 pointer-events-none z-0" style={{ opacity: glowOpacity }}>
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/10 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-primary/10 to-transparent" />
+      </motion.div>
+      
+      <motion.section id="testimonials" className="py-28 relative overflow-hidden bg-background" style={{ scale, opacity, y }}>
       {/* Subtle background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
       
@@ -332,6 +350,7 @@ export const TestimonialsSection = () => {
           </div>
         </motion.div>
       </div>
-    </section>
+    </motion.section>
+    </div>
   );
 };

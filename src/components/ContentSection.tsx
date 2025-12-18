@@ -89,9 +89,27 @@ export const ContentSection = () => {
   const backgroundScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1.1, 0.9]);
   const glowOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
   const rotateNodes = useTransform(scrollYProgress, [0, 1], [0, 360]);
+  
+  // Zoom transition effects
+  const sectionScale = useTransform(scrollYProgress, [0, 0.15, 0.5, 0.85, 1], [0.85, 0.95, 1, 0.95, 0.85]);
+  const sectionOpacity = useTransform(scrollYProgress, [0, 0.15, 0.5, 0.85, 1], [0.3, 1, 1, 1, 0.3]);
+  const sectionY = useTransform(scrollYProgress, [0, 0.5, 1], [60, 0, -60]);
+  const transitionGlow = useTransform(scrollYProgress, [0, 0.3, 0.5, 0.7, 1], [0, 0.6, 1, 0.6, 0]);
 
   return (
-    <section id="features" className="py-28 relative overflow-hidden" ref={sectionRef}>
+    <div className="relative">
+      {/* Transition glow */}
+      <motion.div className="absolute inset-0 pointer-events-none z-0" style={{ opacity: transitionGlow }}>
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/15 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-primary/15 to-transparent" />
+      </motion.div>
+      
+      <motion.section 
+        id="features" 
+        className="py-28 relative overflow-hidden" 
+        ref={sectionRef}
+        style={{ scale: sectionScale, opacity: sectionOpacity, y: sectionY }}
+      >
       {/* Animated Background Glow */}
       <motion.div 
         className="absolute inset-0 bg-hero-glow"
@@ -456,6 +474,7 @@ export const ContentSection = () => {
           </div>
         </motion.div>
       </div>
-    </section>
+    </motion.section>
+    </div>
   );
 };
