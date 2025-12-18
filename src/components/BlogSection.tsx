@@ -185,65 +185,82 @@ const BlogCard = ({ blog, index, totalCards, containerRef }: BlogCardProps) => {
 
 export const BlogSection = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"]
+  });
+
+  const scale = useTransform(scrollYProgress, [0, 0.1, 0.3, 0.9, 1], [0.9, 0.95, 1, 1, 0.9]);
+  const opacity = useTransform(scrollYProgress, [0, 0.1, 0.3, 0.95, 1], [0.3, 0.8, 1, 1, 0.3]);
+  const glowOpacity = useTransform(scrollYProgress, [0, 0.2, 0.4, 0.8, 1], [0, 0.5, 1, 0.5, 0]);
 
   return (
-    <section id="blog" className="py-24 bg-background">
-      <div className="container px-4">
-        {/* Section Header */}
-        <motion.div 
-          className="flex flex-col md:flex-row md:items-end justify-between mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.8 }}
-        >
-          <div>
-            <motion.span 
-              className="text-primary text-sm font-semibold uppercase tracking-wider mb-4 block"
-              initial={{ opacity: 0, x: -20 }}
+    <div ref={sectionRef} className="relative">
+      {/* Transition glow */}
+      <motion.div className="absolute inset-0 pointer-events-none z-0" style={{ opacity: glowOpacity }}>
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/10 to-transparent" />
+      </motion.div>
+      
+      <motion.section id="blog" className="py-24 bg-background" style={{ scale, opacity }}>
+        <div className="container px-4">
+          {/* Section Header */}
+          <motion.div 
+            className="flex flex-col md:flex-row md:items-end justify-between mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.8 }}
+          >
+            <div>
+              <motion.span 
+                className="text-primary text-sm font-semibold uppercase tracking-wider mb-4 block"
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+              >
+                Blog
+              </motion.span>
+              <h2 className="font-heading text-3xl md:text-5xl font-bold">
+                Latest Insights
+              </h2>
+              <p className="text-muted-foreground mt-4 max-w-lg">
+                Deep dives into AI, memory systems, and the future of intelligent applications.
+              </p>
+            </div>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
             >
-              Blog
-            </motion.span>
-            <h2 className="font-heading text-3xl md:text-5xl font-bold">
-              Latest Insights
-            </h2>
-            <p className="text-muted-foreground mt-4 max-w-lg">
-              Deep dives into AI, memory systems, and the future of intelligent applications.
-            </p>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <Button variant="ghost" className="mt-4 md:mt-0 group">
-              View All Posts
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
+              <Button variant="ghost" className="mt-4 md:mt-0 group">
+                View All Posts
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </motion.div>
           </motion.div>
-        </motion.div>
 
-        {/* Sticky Stack Container */}
-        <div 
-          ref={containerRef}
-          className="relative"
-          style={{ height: `${blogs.length * 80}vh` }}
-        >
-          {blogs.map((blog, index) => (
-            <BlogCard
-              key={blog.title}
-              blog={blog}
-              index={index}
-              totalCards={blogs.length}
-              containerRef={containerRef}
-            />
-          ))}
+          {/* Sticky Stack Container */}
+          <div 
+            ref={containerRef}
+            className="relative"
+            style={{ height: `${blogs.length * 80}vh` }}
+          >
+            {blogs.map((blog, index) => (
+              <BlogCard
+                key={blog.title}
+                blog={blog}
+                index={index}
+                totalCards={blogs.length}
+                containerRef={containerRef}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </motion.section>
+    </div>
   );
 };

@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 
 const ImmersiveSection = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -18,13 +19,31 @@ const ImmersiveSection = () => {
   // Opacity for content
   const contentOpacity = useTransform(scrollYProgress, [0.2, 0.5], [0, 1]);
   const contentY = useTransform(scrollYProgress, [0.2, 0.5], [60, 0]);
+  
+  // Section zoom transitions
+  const { scrollYProgress: wrapperProgress } = useScroll({
+    target: wrapperRef,
+    offset: ["start end", "end start"]
+  });
+  
+  const sectionScale = useTransform(wrapperProgress, [0, 0.1, 0.5, 0.9, 1], [0.85, 0.92, 1, 0.92, 0.85]);
+  const sectionOpacity = useTransform(wrapperProgress, [0, 0.1, 0.3, 0.9, 1], [0.3, 0.8, 1, 1, 0.3]);
+  const transitionGlow = useTransform(wrapperProgress, [0, 0.2, 0.4, 0.8, 1], [0, 0.5, 1, 0.5, 0]);
 
   return (
-    <section 
-      ref={containerRef}
-      className="relative min-h-[200vh] flex items-start justify-center py-20"
-    >
-      <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
+    <div ref={wrapperRef} className="relative">
+      {/* Transition glow */}
+      <motion.div className="absolute inset-0 pointer-events-none z-0" style={{ opacity: transitionGlow }}>
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/10 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-primary/10 to-transparent" />
+      </motion.div>
+      
+      <motion.div style={{ scale: sectionScale, opacity: sectionOpacity }}>
+        <section 
+          ref={containerRef}
+          className="relative min-h-[200vh] flex items-start justify-center py-20"
+        >
+          <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
         <motion.div
           style={{ 
             scale,
@@ -148,6 +167,8 @@ const ImmersiveSection = () => {
         </motion.div>
       </div>
     </section>
+    </motion.div>
+    </div>
   );
 };
 

@@ -1,5 +1,6 @@
 import { MessageSquare, FileSearch, Users, Workflow, Bot, Database } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
 
 const useCases = [
   {
@@ -75,8 +76,27 @@ const headerVariants = {
 };
 
 export const UseCasesSection = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"]
+  });
+
+  const scale = useTransform(scrollYProgress, [0, 0.2, 0.5, 0.8, 1], [0.85, 0.95, 1, 0.95, 0.85]);
+  const opacity = useTransform(scrollYProgress, [0, 0.15, 0.5, 0.85, 1], [0.3, 1, 1, 1, 0.3]);
+  const y = useTransform(scrollYProgress, [0, 0.5, 1], [60, 0, -60]);
+  const glowOpacity = useTransform(scrollYProgress, [0, 0.3, 0.5, 0.7, 1], [0, 0.5, 1, 0.5, 0]);
+
   return (
-    <section id="use-cases" className="py-28 relative overflow-hidden">
+    <div ref={sectionRef} className="relative">
+      {/* Transition glow */}
+      <motion.div className="absolute inset-0 pointer-events-none" style={{ opacity: glowOpacity }}>
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-accent/10 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-accent/10 to-transparent" />
+      </motion.div>
+      
+      <motion.section id="use-cases" className="py-28 relative overflow-hidden" style={{ scale, opacity, y }}>
       <div className="absolute inset-0 bg-card/40" />
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
@@ -144,6 +164,7 @@ export const UseCasesSection = () => {
           ))}
         </motion.div>
       </div>
-    </section>
+    </motion.section>
+    </div>
   );
 };
