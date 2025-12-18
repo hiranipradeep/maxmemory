@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
@@ -6,65 +7,11 @@ import { NeuralBackground } from '@/components/NeuralBackground';
 import { Clock, ArrowRight, Tag, Send, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-
-const featuredPost = {
-  title: 'The Future of AI Memory: What 2024 Holds',
-  excerpt: 'Explore the cutting-edge developments in AI memory systems and how they will transform intelligent applications.',
-  image: '/placeholder.svg',
-  author: 'Alex Chen',
-  date: 'Dec 15, 2024',
-  readTime: '8 min read',
-  category: 'AI Research',
-};
+import { blogPosts } from '@/data/blogData';
 
 const trendingTopics = [
   'Vector Memory', 'LLM Context', 'RAG Systems', 'Neural Networks', 
   'Memory Optimization', 'AI Agents', 'Knowledge Graphs', 'Embeddings'
-];
-
-const blogPosts = [
-  {
-    title: 'Building Scalable Memory Systems for AI Agents',
-    excerpt: 'Learn how to architect memory systems that grow with your application.',
-    date: 'Dec 12, 2024',
-    readTime: '5 min',
-    category: 'Engineering',
-  },
-  {
-    title: 'Vector Databases vs Traditional Storage',
-    excerpt: 'A deep dive into why vector storage is revolutionizing AI applications.',
-    date: 'Dec 10, 2024',
-    readTime: '7 min',
-    category: 'Architecture',
-  },
-  {
-    title: 'Memory Max API: Getting Started Guide',
-    excerpt: 'Everything you need to know to integrate memory into your AI app.',
-    date: 'Dec 8, 2024',
-    readTime: '4 min',
-    category: 'Tutorial',
-  },
-  {
-    title: 'The Psychology of AI Memory',
-    excerpt: 'How human memory research is influencing AI memory design.',
-    date: 'Dec 5, 2024',
-    readTime: '6 min',
-    category: 'Research',
-  },
-  {
-    title: 'Optimizing Retrieval Speed at Scale',
-    excerpt: 'Techniques we use to maintain sub-millisecond query times.',
-    date: 'Dec 3, 2024',
-    readTime: '8 min',
-    category: 'Performance',
-  },
-  {
-    title: 'Privacy-First Memory Architecture',
-    excerpt: 'How we keep your AI memories secure and private.',
-    date: 'Dec 1, 2024',
-    readTime: '5 min',
-    category: 'Security',
-  },
 ];
 
 const ScrollReveal = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => {
@@ -88,6 +35,9 @@ const Blog = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+
+  const featuredPost = blogPosts[0];
+  const otherPosts = blogPosts.slice(1);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,70 +78,64 @@ const Blog = () => {
 
             {/* Featured Post - Holographic Style */}
             <ScrollReveal delay={0.1}>
-              <motion.div
-                whileHover={{ scale: 1.01 }}
-                className="relative rounded-3xl overflow-hidden mb-16 group"
-              >
-                {/* Holographic glow effect */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-primary rounded-3xl opacity-50 blur-xl group-hover:opacity-75 transition-opacity animate-gradient-shift" />
-                
-                <div className="relative glass-card p-8 md:p-12 grid md:grid-cols-2 gap-8 items-center">
-                  {/* Scan lines effect */}
-                  <div className="absolute inset-0 opacity-10 pointer-events-none">
-                    {[...Array(20)].map((_, i) => (
-                      <div key={i} className="h-px bg-primary/30" style={{ marginTop: `${i * 5}%` }} />
-                    ))}
-                  </div>
+              <Link to={`/blog/${featuredPost.id}`}>
+                <motion.div
+                  whileHover={{ scale: 1.01 }}
+                  className="relative rounded-3xl overflow-hidden mb-16 group cursor-pointer"
+                >
+                  {/* Holographic glow effect */}
+                  <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-primary rounded-3xl opacity-50 blur-xl group-hover:opacity-75 transition-opacity animate-gradient-shift" />
                   
-                  <div className="relative z-10">
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="px-3 py-1 rounded-full bg-primary/20 text-primary text-xs font-medium">
-                        {featuredPost.category}
-                      </span>
-                      <span className="text-muted-foreground text-sm flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {featuredPost.readTime}
-                      </span>
+                  <div className="relative glass-card p-8 md:p-12 grid md:grid-cols-2 gap-8 items-center">
+                    {/* Scan lines effect */}
+                    <div className="absolute inset-0 opacity-10 pointer-events-none">
+                      {[...Array(20)].map((_, i) => (
+                        <div key={i} className="h-px bg-primary/30" style={{ marginTop: `${i * 5}%` }} />
+                      ))}
                     </div>
-                    <h2 className="text-2xl md:text-4xl font-heading font-bold mb-4">
-                      {featuredPost.title}
-                    </h2>
-                    <p className="text-muted-foreground mb-6">{featuredPost.excerpt}</p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-sm font-bold text-primary-foreground">
-                          AC
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm">{featuredPost.author}</p>
-                          <p className="text-xs text-muted-foreground">{featuredPost.date}</p>
-                        </div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="px-3 py-1 rounded-full bg-primary/20 text-primary text-xs font-medium">
+                          {featuredPost.category}
+                        </span>
+                        <span className="text-muted-foreground text-sm flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {featuredPost.readTime}
+                        </span>
                       </div>
-                      <Button variant="hero" size="sm" className="group/btn">
-                        Read More 
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                      </Button>
+                      <h2 className="text-2xl md:text-4xl font-heading font-bold mb-4 group-hover:text-primary transition-colors">
+                        {featuredPost.title}
+                      </h2>
+                      <p className="text-muted-foreground mb-6">{featuredPost.excerpt}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-sm font-bold text-primary-foreground">
+                            {featuredPost.authorAvatar}
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm">{featuredPost.author}</p>
+                            <p className="text-xs text-muted-foreground">{featuredPost.date}</p>
+                          </div>
+                        </div>
+                        <Button variant="hero" size="sm" className="group/btn">
+                          Read More 
+                          <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="relative aspect-video rounded-2xl overflow-hidden">
+                      <img 
+                        src={featuredPost.image}
+                        alt={featuredPost.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/30" />
                     </div>
                   </div>
-                  
-                  <div className="relative aspect-video rounded-2xl overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/30" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                        className="w-32 h-32 border border-primary/30 rounded-full"
-                      />
-                      <motion.div
-                        animate={{ rotate: -360 }}
-                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-                        className="absolute w-24 h-24 border border-accent/30 rounded-full"
-                      />
-                      <div className="absolute w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent opacity-50 blur-xl" />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              </Link>
             </ScrollReveal>
           </div>
         </section>
@@ -226,48 +170,65 @@ const Blog = () => {
         <section className="py-16 px-4">
           <div className="container mx-auto max-w-6xl">
             <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-              {blogPosts.map((post, index) => (
-                <ScrollReveal key={post.title} delay={index * 0.05}>
-                  <motion.article
-                    onHoverStart={() => setHoveredCard(index)}
-                    onHoverEnd={() => setHoveredCard(null)}
-                    whileHover={{ y: -5 }}
-                    className="break-inside-avoid glass-card p-6 relative overflow-hidden group cursor-pointer"
-                  >
-                    {/* Glow effect on hover */}
-                    <AnimatePresence>
-                      {hoveredCard === index && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="absolute -inset-px bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-2xl"
+              {otherPosts.map((post, index) => (
+                <ScrollReveal key={post.id} delay={index * 0.05}>
+                  <Link to={`/blog/${post.id}`}>
+                    <motion.article
+                      onHoverStart={() => setHoveredCard(index)}
+                      onHoverEnd={() => setHoveredCard(null)}
+                      whileHover={{ y: -5 }}
+                      className="break-inside-avoid glass-card p-6 relative overflow-hidden group cursor-pointer"
+                    >
+                      {/* Glow effect on hover */}
+                      <AnimatePresence>
+                        {hoveredCard === index && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute -inset-px bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-2xl"
+                          />
+                        )}
+                      </AnimatePresence>
+                      
+                      {/* Image */}
+                      <div className="relative aspect-video rounded-xl overflow-hidden mb-4">
+                        <img 
+                          src={post.image}
+                          alt={post.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-                      )}
-                    </AnimatePresence>
-                    
-                    <div className="relative z-10">
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="px-3 py-1 rounded-full bg-secondary text-xs font-medium text-muted-foreground">
-                          {post.category}
-                        </span>
-                        <span className="text-xs text-muted-foreground">{post.readTime}</span>
+                        <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
                       </div>
-                      <h3 className="text-lg font-heading font-semibold mb-3 group-hover:text-primary transition-colors">
-                        {post.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-4">{post.excerpt}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">{post.date}</span>
-                        <motion.div
-                          initial={{ x: -5, opacity: 0 }}
-                          animate={hoveredCard === index ? { x: 0, opacity: 1 } : { x: -5, opacity: 0 }}
-                        >
-                          <ArrowRight className="w-4 h-4 text-primary" />
-                        </motion.div>
+                      
+                      <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="px-3 py-1 rounded-full bg-secondary text-xs font-medium text-muted-foreground">
+                            {post.category}
+                          </span>
+                          <span className="text-xs text-muted-foreground">{post.readTime}</span>
+                        </div>
+                        <h3 className="text-lg font-heading font-semibold mb-3 group-hover:text-primary transition-colors">
+                          {post.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-4">{post.excerpt}</p>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xs font-bold text-primary-foreground">
+                              {post.authorAvatar}
+                            </div>
+                            <span className="text-xs text-muted-foreground">{post.date}</span>
+                          </div>
+                          <motion.div
+                            initial={{ x: -5, opacity: 0 }}
+                            animate={hoveredCard === index ? { x: 0, opacity: 1 } : { x: -5, opacity: 0 }}
+                          >
+                            <ArrowRight className="w-4 h-4 text-primary" />
+                          </motion.div>
+                        </div>
                       </div>
-                    </div>
-                  </motion.article>
+                    </motion.article>
+                  </Link>
                 </ScrollReveal>
               ))}
             </div>
