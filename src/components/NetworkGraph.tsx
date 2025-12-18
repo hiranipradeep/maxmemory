@@ -72,10 +72,10 @@ export const NetworkGraph = () => {
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(otherNode.x, otherNode.y);
             
-            // Coral to teal gradient
+            // Blue to purple gradient
             const gradient = ctx.createLinearGradient(node.x, node.y, otherNode.x, otherNode.y);
-            gradient.addColorStop(0, `rgba(235, 115, 75, ${opacity})`);
-            gradient.addColorStop(1, `rgba(45, 175, 140, ${opacity})`);
+            gradient.addColorStop(0, `rgba(100, 130, 255, ${opacity})`);
+            gradient.addColorStop(1, `rgba(180, 100, 220, ${opacity})`);
             
             ctx.strokeStyle = gradient;
             ctx.lineWidth = 1;
@@ -89,9 +89,9 @@ export const NetworkGraph = () => {
           node.x, node.y, 0,
           node.x, node.y, node.radius * pulse * 2.5
         );
-        gradient.addColorStop(0, 'rgba(235, 115, 75, 1)');
-        gradient.addColorStop(0.4, 'rgba(235, 115, 75, 0.5)');
-        gradient.addColorStop(1, 'rgba(235, 115, 75, 0)');
+        gradient.addColorStop(0, 'rgba(130, 100, 255, 1)');
+        gradient.addColorStop(0.4, 'rgba(130, 100, 255, 0.5)');
+        gradient.addColorStop(1, 'rgba(130, 100, 255, 0)');
 
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.radius * pulse * 2.5, 0, Math.PI * 2);
@@ -101,7 +101,7 @@ export const NetworkGraph = () => {
         // Core of the node
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(235, 115, 75, 1)';
+        ctx.fillStyle = 'rgba(130, 100, 255, 1)';
         ctx.fill();
       });
 
