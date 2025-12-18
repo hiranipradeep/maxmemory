@@ -19,6 +19,7 @@ import UseCaseFinance from "./pages/UseCaseFinance";
 import UseCaseEnterprise from "./pages/UseCaseEnterprise";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import Documentation from "./pages/Documentation";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/use-cases/enterprise" element={<UseCaseEnterprise />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/docs" element={<Documentation />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
