@@ -350,65 +350,7 @@ const DataFlowNode = ({
 };
 
 // Glowing M Logo Component
-const GlowingLogo = () => {
-  return (
-    <motion.div
-      className="relative"
-      initial={{ scale: 0, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ duration: 1, delay: 0.2, ease: "backOut" }}
-    >
-      <motion.div
-        className="absolute -inset-16 rounded-full bg-gradient-to-r from-violet-600/20 via-cyan-500/20 to-violet-600/20 blur-3xl"
-        animate={{
-          scale: [1, 1.2, 1],
-          rotate: [0, 180, 360],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-      />
-      <motion.div
-        className="absolute -inset-8 rounded-full bg-gradient-to-r from-purple-500/30 to-cyan-500/30 blur-2xl"
-        animate={{
-          scale: [1.1, 0.9, 1.1],
-          opacity: [0.4, 0.6, 0.4],
-        }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-3xl bg-gradient-to-br from-violet-600 via-purple-600 to-cyan-500 p-[2px] shadow-2xl shadow-violet-500/50">
-        <div className="w-full h-full rounded-3xl bg-background/90 backdrop-blur-xl flex items-center justify-center">
-          <motion.span className="text-5xl md:text-6xl font-bold bg-gradient-to-br from-violet-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-            M
-          </motion.span>
-        </div>
-      </div>
-
-      {[...Array(6)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-2 h-2 rounded-full bg-violet-400"
-          style={{ top: "50%", left: "50%" }}
-          animate={{
-            x: [
-              Math.cos((i / 6) * Math.PI * 2) * 80,
-              Math.cos((i / 6) * Math.PI * 2 + Math.PI) * 80,
-              Math.cos((i / 6) * Math.PI * 2) * 80,
-            ],
-            y: [
-              Math.sin((i / 6) * Math.PI * 2) * 80,
-              Math.sin((i / 6) * Math.PI * 2 + Math.PI) * 80,
-              Math.sin((i / 6) * Math.PI * 2) * 80,
-            ],
-            opacity: [0.3, 0.8, 0.3],
-            scale: [0.5, 1, 0.5],
-          }}
-          transition={{ duration: 6, repeat: Infinity, delay: i * 0.5, ease: "easeInOut" }}
-        />
-      ))}
-    </motion.div>
-  );
-};
+const GlowingLogo = () => {};
 
 // Main Hero Section
 export const HeroSection = () => {
