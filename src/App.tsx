@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { GlowCursor } from "@/components/GlowCursor";
 import { ApiStatusHeader } from "@/components/ApiStatusHeader";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ChatbotWidget } from "@/components/ChatbotWidget";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Blog from "./pages/Blog";
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/docs" element={<Documentation />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <ChatbotWidget />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
