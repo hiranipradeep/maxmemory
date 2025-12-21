@@ -8,7 +8,6 @@ import { UseCasesSection } from '@/components/UseCasesSection';
 import { TestimonialsSection } from '@/components/TestimonialsSection';
 import { BlogSection } from '@/components/BlogSection';
 import { Footer } from '@/components/Footer';
-import { ChatbotWidget } from '@/components/ChatbotWidget';
 
 const Index = () => {
   return (
@@ -26,7 +25,6 @@ const Index = () => {
         <BlogSection />
       </main>
       <Footer />
-      <ChatbotWidget />
     </div>
   );
 };
