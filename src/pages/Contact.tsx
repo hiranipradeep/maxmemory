@@ -1,239 +1,17 @@
-import { useState, useRef, useEffect } from 'react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
-import { NeuralBackground } from '@/components/NeuralBackground';
-import { Send, Check, MapPin, Mail, MessageCircle } from 'lucide-react';
+import { Send, Check, MapPin, Mail, Phone, Clock, MessageCircle, Users, Headphones, Building } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-const serverLocations = [
-  { name: 'San Francisco', lat: 37.7749, lng: -122.4194 },
-  { name: 'New York', lat: 40.7128, lng: -74.0060 },
-  { name: 'London', lat: 51.5074, lng: -0.1278 },
-  { name: 'Singapore', lat: 1.3521, lng: 103.8198 },
-  { name: 'Tokyo', lat: 35.6762, lng: 139.6503 },
-  { name: 'Sydney', lat: -33.8688, lng: 151.2093 },
-];
-
-interface FloatingLabelInputProps {
-  label: string;
-  type?: string;
-  value: string;
-  onChange: (value: string) => void;
-  required?: boolean;
-  textarea?: boolean;
-}
-
-const FloatingLabelInput = ({ label, type = 'text', value, onChange, required, textarea }: FloatingLabelInputProps) => {
-  const [isFocused, setIsFocused] = useState(false);
-  const hasValue = value.length > 0;
-  const isActive = isFocused || hasValue;
-
-  const Component = textarea ? 'textarea' : 'input';
-
-  return (
-    <div className="relative">
-      <Component
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        required={required}
-        className={`w-full bg-background/50 border rounded-xl px-4 pt-6 pb-2 text-foreground outline-none transition-all duration-300 ${
-          isFocused ? 'border-primary shadow-[0_0_20px_hsl(var(--primary)/0.3)]' : 'border-border/50'
-        } ${textarea ? 'h-32 resize-none' : 'h-14'}`}
-      />
-      <motion.label
-        animate={{
-          y: isActive ? -8 : 4,
-          scale: isActive ? 0.8 : 1,
-          color: isFocused ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
-        }}
-        className="absolute left-4 top-4 origin-left pointer-events-none text-muted-foreground"
-      >
-        {label}
-      </motion.label>
-    </div>
-  );
-};
-
-const Globe3D = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let animationId: number;
-    let rotation = 0;
-
-    const resize = () => {
-      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-      canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    };
-
-    const draw = () => {
-      const width = canvas.offsetWidth;
-      const height = canvas.offsetHeight;
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const radius = Math.min(width, height) * 0.35;
-
-      ctx.clearRect(0, 0, width, height);
-
-      // Draw globe background
-      const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-      gradient.addColorStop(0, 'hsla(240, 15%, 12%, 1)');
-      gradient.addColorStop(1, 'hsla(240, 15%, 6%, 1)');
-      
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-      ctx.fillStyle = gradient;
-      ctx.fill();
-
-      // Draw globe glow
-      const glowGradient = ctx.createRadialGradient(centerX, centerY, radius * 0.8, centerX, centerY, radius * 1.5);
-      glowGradient.addColorStop(0, 'hsla(250, 85%, 65%, 0.1)');
-      glowGradient.addColorStop(1, 'transparent');
-      
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius * 1.5, 0, Math.PI * 2);
-      ctx.fillStyle = glowGradient;
-      ctx.fill();
-
-      // Draw latitude lines
-      ctx.strokeStyle = 'hsla(250, 85%, 65%, 0.2)';
-      ctx.lineWidth = 0.5;
-      for (let i = -3; i <= 3; i++) {
-        const y = centerY + (i / 3) * radius * 0.8;
-        const latRadius = Math.sqrt(radius * radius - Math.pow(y - centerY, 2)) || 0;
-        
-        ctx.beginPath();
-        ctx.ellipse(centerX, y, latRadius, latRadius * 0.3, 0, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-
-      // Draw longitude lines
-      for (let i = 0; i < 8; i++) {
-        const angle = (i / 8) * Math.PI + rotation;
-        ctx.beginPath();
-        ctx.ellipse(centerX, centerY, radius * Math.abs(Math.cos(angle)), radius, 0, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-
-      // Draw server nodes
-      serverLocations.forEach((location, index) => {
-        const lng = (location.lng + rotation * 50) * (Math.PI / 180);
-        const lat = location.lat * (Math.PI / 180);
-        
-        const x = centerX + radius * Math.cos(lat) * Math.sin(lng) * 0.9;
-        const y = centerY - radius * Math.sin(lat) * 0.9;
-        const z = Math.cos(lat) * Math.cos(lng);
-
-        if (z > -0.2) {
-          const size = 4 + z * 3;
-          const opacity = 0.5 + z * 0.5;
-
-          // Node glow
-          const nodeGlow = ctx.createRadialGradient(x, y, 0, x, y, size * 4);
-          nodeGlow.addColorStop(0, `hsla(250, 85%, 65%, ${opacity * 0.5})`);
-          nodeGlow.addColorStop(1, 'transparent');
-          
-          ctx.beginPath();
-          ctx.arc(x, y, size * 4, 0, Math.PI * 2);
-          ctx.fillStyle = nodeGlow;
-          ctx.fill();
-
-          // Node
-          ctx.beginPath();
-          ctx.arc(x, y, size, 0, Math.PI * 2);
-          ctx.fillStyle = `hsla(250, 85%, 65%, ${opacity})`;
-          ctx.fill();
-
-          // Pulse effect
-          const pulseSize = size + Math.sin(Date.now() * 0.003 + index) * 3;
-          ctx.beginPath();
-          ctx.arc(x, y, pulseSize, 0, Math.PI * 2);
-          ctx.strokeStyle = `hsla(280, 70%, 60%, ${opacity * 0.5})`;
-          ctx.lineWidth = 1;
-          ctx.stroke();
-        }
-      });
-
-      // Draw connections between nodes
-      ctx.strokeStyle = 'hsla(250, 85%, 65%, 0.1)';
-      ctx.lineWidth = 0.5;
-      serverLocations.forEach((loc1, i) => {
-        serverLocations.slice(i + 1).forEach((loc2) => {
-          const lng1 = (loc1.lng + rotation * 50) * (Math.PI / 180);
-          const lat1 = loc1.lat * (Math.PI / 180);
-          const lng2 = (loc2.lng + rotation * 50) * (Math.PI / 180);
-          const lat2 = loc2.lat * (Math.PI / 180);
-          
-          const x1 = centerX + radius * Math.cos(lat1) * Math.sin(lng1) * 0.9;
-          const y1 = centerY - radius * Math.sin(lat1) * 0.9;
-          const z1 = Math.cos(lat1) * Math.cos(lng1);
-          
-          const x2 = centerX + radius * Math.cos(lat2) * Math.sin(lng2) * 0.9;
-          const y2 = centerY - radius * Math.sin(lat2) * 0.9;
-          const z2 = Math.cos(lat2) * Math.cos(lng2);
-
-          if (z1 > -0.2 && z2 > -0.2) {
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.stroke();
-          }
-        });
-      });
-
-      rotation += 0.002;
-      animationId = requestAnimationFrame(draw);
-    };
-
-    resize();
-    window.addEventListener('resize', resize);
-    draw();
-
-    return () => {
-      window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animationId);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="w-full h-full"
-    />
-  );
-};
-
-const ScrollReveal = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px' });
-  
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-      transition={{ duration: 0.5, delay }}
-    >
-      {children}
-    </motion.div>
-  );
-};
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    company: '',
     subject: '',
     message: '',
   });
@@ -243,75 +21,136 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
     setIsSubmitting(false);
     setIsSubmitted(true);
   };
 
+  const contactMethods = [
+    {
+      icon: Mail,
+      title: 'Email Us',
+      description: 'We respond within 24 hours',
+      value: 'hello@memorymax.ai',
+      color: 'bg-blue-50 text-blue-600',
+    },
+    {
+      icon: Phone,
+      title: 'Call Us',
+      description: 'Mon-Fri from 9am to 6pm PST',
+      value: '+1 (555) 123-4567',
+      color: 'bg-green-50 text-green-600',
+    },
+    {
+      icon: MapPin,
+      title: 'Visit Us',
+      description: 'Come say hello at our HQ',
+      value: '548 Market St, San Francisco, CA',
+      color: 'bg-purple-50 text-purple-600',
+    },
+    {
+      icon: MessageCircle,
+      title: 'Live Chat',
+      description: 'Available 24/7 for support',
+      value: 'Start a conversation',
+      color: 'bg-orange-50 text-orange-600',
+    },
+  ];
+
+  const supportOptions = [
+    {
+      icon: Headphones,
+      title: 'Technical Support',
+      description: 'Get help with API integration, debugging, and technical issues.',
+    },
+    {
+      icon: Users,
+      title: 'Sales Inquiry',
+      description: 'Learn about enterprise pricing, custom solutions, and partnerships.',
+    },
+    {
+      icon: Building,
+      title: 'Enterprise Solutions',
+      description: 'Dedicated support for large-scale deployments and custom requirements.',
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      <NeuralBackground nodeCount={25} className="opacity-20" />
+    <div className="min-h-screen bg-background">
       <Navbar />
       
-      <main className="relative z-10 pt-24">
+      <main className="pt-24">
         {/* Hero Section */}
-        <section className="py-12 px-4">
+        <section className="py-16 px-4 bg-gradient-to-b from-primary/5 to-background">
           <div className="container mx-auto max-w-6xl text-center">
-            <ScrollReveal>
-              <motion.div
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-primary/20 mb-6"
-              >
-                <MessageCircle className="w-4 h-4 text-primary" />
-                <span className="text-sm text-muted-foreground">Connect the Nodes</span>
-              </motion.div>
-            </ScrollReveal>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
+            >
+              <MessageCircle className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Get in Touch</span>
+            </motion.div>
             
-            <ScrollReveal delay={0.1}>
-              <h1 className="text-4xl md:text-6xl font-heading font-bold mb-4">
-                Get in <span className="gradient-text-multi">Touch</span>
-              </h1>
-              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                Have questions? We'd love to hear from you. Our team is always here to help.
-              </p>
-            </ScrollReveal>
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-6 text-foreground"
+            >
+              We'd Love to{' '}
+              <span className="gradient-text">Hear From You</span>
+            </motion.h1>
+            
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-lg text-muted-foreground max-w-2xl mx-auto"
+            >
+              Have questions about MemoryMax? Want to discuss enterprise solutions? 
+              Our team is ready to help you unlock the full potential of AI memory.
+            </motion.p>
           </div>
         </section>
 
-        {/* Main Content - Split Screen */}
+        {/* Contact Methods */}
         <section className="py-12 px-4">
           <div className="container mx-auto max-w-6xl">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              {/* 3D Globe */}
-              <ScrollReveal>
-                <div className="relative">
-                  <div className="aspect-square max-w-lg mx-auto relative">
-                    <Globe3D />
-                    
-                    {/* Server status overlay */}
-                    <div className="absolute bottom-4 left-4 glass rounded-xl p-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <motion.div
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                          className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"
-                        />
-                        <span className="text-sm font-medium">6 Active Regions</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">99.99% Uptime</p>
-                    </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {contactMethods.map((method, index) => (
+                <motion.div
+                  key={method.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                >
+                  <div className={`w-12 h-12 rounded-xl ${method.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                    <method.icon className="w-6 h-6" />
                   </div>
-                </div>
-              </ScrollReveal>
+                  <h3 className="font-semibold text-foreground mb-1">{method.title}</h3>
+                  <p className="text-sm text-muted-foreground mb-2">{method.description}</p>
+                  <p className="text-sm font-medium text-primary">{method.value}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-              {/* Contact Form */}
-              <ScrollReveal delay={0.2}>
-                <div className="glass-card p-8">
-                  <h2 className="text-2xl font-heading font-bold mb-6">Send us a message</h2>
+        {/* Main Content */}
+        <section className="py-16 px-4">
+          <div className="container mx-auto max-w-6xl">
+            <div className="grid lg:grid-cols-5 gap-12">
+              {/* Form Section */}
+              <div className="lg:col-span-3">
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="bg-card rounded-3xl border border-border p-8 shadow-sm"
+                >
+                  <h2 className="text-2xl font-heading font-bold mb-2 text-foreground">Send Us a Message</h2>
+                  <p className="text-muted-foreground mb-8">Fill out the form below and we'll get back to you shortly.</p>
                   
                   <AnimatePresence mode="wait">
                     {!isSubmitted ? (
@@ -322,72 +161,84 @@ const Contact = () => {
                         exit={{ opacity: 0, y: -20 }}
                       >
                         <div className="grid md:grid-cols-2 gap-6">
-                          <FloatingLabelInput
-                            label="Your Name"
-                            value={formData.name}
-                            onChange={(value) => setFormData({ ...formData, name: value })}
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium text-foreground">Your Name</label>
+                            <Input
+                              placeholder="John Doe"
+                              value={formData.name}
+                              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                              required
+                              className="h-12"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium text-foreground">Email Address</label>
+                            <Input
+                              type="email"
+                              placeholder="john@company.com"
+                              value={formData.email}
+                              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                              required
+                              className="h-12"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium text-foreground">Company</label>
+                            <Input
+                              placeholder="Your Company"
+                              value={formData.company}
+                              onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                              className="h-12"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium text-foreground">Subject</label>
+                            <Input
+                              placeholder="How can we help?"
+                              value={formData.subject}
+                              onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                              required
+                              className="h-12"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-foreground">Message</label>
+                          <Textarea
+                            placeholder="Tell us more about your project or question..."
+                            value={formData.message}
+                            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                             required
-                          />
-                          <FloatingLabelInput
-                            label="Email Address"
-                            type="email"
-                            value={formData.email}
-                            onChange={(value) => setFormData({ ...formData, email: value })}
-                            required
+                            className="min-h-[150px] resize-none"
                           />
                         </div>
                         
-                        <FloatingLabelInput
-                          label="Subject"
-                          value={formData.subject}
-                          onChange={(value) => setFormData({ ...formData, subject: value })}
-                          required
-                        />
-                        
-                        <FloatingLabelInput
-                          label="Your Message"
-                          value={formData.message}
-                          onChange={(value) => setFormData({ ...formData, message: value })}
-                          required
-                          textarea
-                        />
-                        
-                        <motion.button
+                        <Button
                           type="submit"
                           disabled={isSubmitting}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          className="w-full h-14 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold relative overflow-hidden"
+                          className="w-full h-12"
+                          size="lg"
                         >
-                          <AnimatePresence mode="wait">
-                            {isSubmitting ? (
+                          {isSubmitting ? (
+                            <span className="flex items-center gap-2">
                               <motion.div
-                                key="loading"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="absolute inset-0 flex items-center justify-center"
-                              >
-                                <motion.div
-                                  animate={{ rotate: 360 }}
-                                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                                  className="w-6 h-6 border-2 border-primary-foreground border-t-transparent rounded-full"
-                                />
-                              </motion.div>
-                            ) : (
-                              <motion.span
-                                key="text"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="flex items-center justify-center gap-2"
-                              >
-                                Send Message
-                                <Send className="w-4 h-4" />
-                              </motion.span>
-                            )}
-                          </AnimatePresence>
-                        </motion.button>
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                                className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full"
+                              />
+                              Sending...
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-2">
+                              Send Message
+                              <Send className="w-4 h-4" />
+                            </span>
+                          )}
+                        </Button>
                       </motion.form>
                     ) : (
                       <motion.div
@@ -400,19 +251,19 @@ const Contact = () => {
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           transition={{ type: 'spring', delay: 0.2 }}
-                          className="w-20 h-20 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center mx-auto mb-6"
+                          className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6"
                         >
-                          <Check className="w-10 h-10 text-primary-foreground" />
+                          <Check className="w-10 h-10 text-green-600" />
                         </motion.div>
-                        <h3 className="text-2xl font-heading font-bold mb-2">Message Sent!</h3>
+                        <h3 className="text-2xl font-heading font-bold mb-2 text-foreground">Message Sent!</h3>
                         <p className="text-muted-foreground mb-6">
-                          We'll get back to you within 24 hours.
+                          Thank you for reaching out. We'll get back to you within 24 hours.
                         </p>
                         <Button
                           variant="outline"
                           onClick={() => {
                             setIsSubmitted(false);
-                            setFormData({ name: '', email: '', subject: '', message: '' });
+                            setFormData({ name: '', email: '', company: '', subject: '', message: '' });
                           }}
                         >
                           Send Another Message
@@ -420,52 +271,106 @@ const Contact = () => {
                       </motion.div>
                     )}
                   </AnimatePresence>
+                </motion.div>
+              </div>
 
-                  {/* Live Support Badge */}
-                  <div className="mt-6 pt-6 border-t border-border/30 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"
-                      />
-                      <span className="text-sm text-muted-foreground">Live support available</span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">Avg. response: 5 mins</span>
+              {/* Side Info */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Support Options */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="bg-card rounded-3xl border border-border p-6"
+                >
+                  <h3 className="font-heading font-bold text-lg mb-4 text-foreground">How Can We Help?</h3>
+                  <div className="space-y-4">
+                    {supportOptions.map((option, index) => (
+                      <div key={option.title} className="flex gap-4 p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors cursor-pointer">
+                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <option.icon className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-foreground text-sm">{option.title}</h4>
+                          <p className="text-xs text-muted-foreground">{option.description}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              </ScrollReveal>
+                </motion.div>
+
+                {/* Response Time */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-3xl border border-primary/20 p-6"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                      <Clock className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-foreground">Quick Response</h4>
+                      <p className="text-sm text-muted-foreground">Average reply time</p>
+                    </div>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-bold text-primary">2</span>
+                    <span className="text-muted-foreground">hours during business hours</span>
+                  </div>
+                </motion.div>
+
+                {/* Office Hours */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="bg-card rounded-3xl border border-border p-6"
+                >
+                  <h4 className="font-heading font-bold mb-4 text-foreground">Office Hours</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Monday - Friday</span>
+                      <span className="font-medium text-foreground">9:00 AM - 6:00 PM PST</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Saturday</span>
+                      <span className="font-medium text-foreground">10:00 AM - 4:00 PM PST</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Sunday</span>
+                      <span className="font-medium text-foreground">Closed</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                      <span className="text-sm text-green-600 font-medium">We're currently online</span>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Contact Info Cards */}
-        <section className="py-16 px-4">
-          <div className="container mx-auto max-w-4xl">
-            <div className="grid md:grid-cols-3 gap-6">
-              {[
-                { icon: Mail, title: 'Email Us', info: 'hello@memorymax.ai', subtext: 'We reply within 24h' },
-                { icon: MapPin, title: 'Headquarters', info: 'San Francisco, CA', subtext: '548 Market St' },
-                { icon: MessageCircle, title: 'Live Chat', info: 'Available 24/7', subtext: 'Instant support' },
-              ].map((item, index) => (
-                <ScrollReveal key={item.title} delay={index * 0.1}>
-                  <motion.div
-                    whileHover={{ y: -5, scale: 1.02 }}
-                    className="glass-card p-6 text-center"
-                  >
-                    <motion.div
-                      whileHover={{ rotate: 360 }}
-                      transition={{ duration: 0.5 }}
-                      className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mx-auto mb-4"
-                    >
-                      <item.icon className="w-6 h-6 text-primary" />
-                    </motion.div>
-                    <h3 className="font-heading font-semibold mb-1">{item.title}</h3>
-                    <p className="text-foreground font-medium">{item.info}</p>
-                    <p className="text-xs text-muted-foreground">{item.subtext}</p>
-                  </motion.div>
-                </ScrollReveal>
-              ))}
+        {/* FAQ CTA */}
+        <section className="py-16 px-4 bg-secondary/30">
+          <div className="container mx-auto max-w-4xl text-center">
+            <h2 className="text-2xl md:text-3xl font-heading font-bold mb-4 text-foreground">
+              Looking for Quick Answers?
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              Check out our documentation and FAQ section for instant answers to common questions.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button variant="default" size="lg">
+                View Documentation
+              </Button>
+              <Button variant="outline" size="lg">
+                Browse FAQ
+              </Button>
             </div>
           </div>
         </section>

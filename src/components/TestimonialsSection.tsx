@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Star, Quote, ArrowRight } from 'lucide-react';
+import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Testimonial {
   id: number;
@@ -7,7 +8,6 @@ interface Testimonial {
   author: string;
   role: string;
   company: string;
-  avatar: string;
   metric: string;
   metricLabel: string;
   brandColor: string;
@@ -21,10 +21,9 @@ const testimonials: Testimonial[] = [
     author: "Sarah Chen",
     role: "Chief Technology Officer",
     company: "TechFlow",
-    avatar: "SC",
     metric: "40%",
     metricLabel: "Faster Resolution",
-    brandColor: "hsl(160, 60%, 45%)",
+    brandColor: "from-emerald-500 to-teal-500",
     image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face",
   },
   {
@@ -33,10 +32,9 @@ const testimonials: Testimonial[] = [
     author: "Marcus Johnson",
     role: "Head of AI",
     company: "DataSync",
-    avatar: "MJ",
     metric: "3x",
     metricLabel: "Search Accuracy",
-    brandColor: "hsl(221, 83%, 53%)",
+    brandColor: "from-blue-500 to-indigo-500",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
   },
   {
@@ -45,10 +43,9 @@ const testimonials: Testimonial[] = [
     author: "Elena Rodriguez",
     role: "Engineering Lead",
     company: "ScaleAI",
-    avatar: "ER",
     metric: "<50ms",
     metricLabel: "Avg Latency",
-    brandColor: "hsl(262, 83%, 58%)",
+    brandColor: "from-purple-500 to-pink-500",
     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
   },
   {
@@ -57,10 +54,9 @@ const testimonials: Testimonial[] = [
     author: "David Park",
     role: "VP of Engineering",
     company: "NeuralPath",
-    avatar: "DP",
     metric: "2hrs",
     metricLabel: "Integration Time",
-    brandColor: "hsl(200, 70%, 50%)",
+    brandColor: "from-cyan-500 to-blue-500",
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
   },
   {
@@ -69,21 +65,27 @@ const testimonials: Testimonial[] = [
     author: "Aisha Patel",
     role: "Director of Product",
     company: "CloudMind",
-    avatar: "AP",
     metric: "99.9%",
     metricLabel: "Sync Reliability",
-    brandColor: "hsl(340, 60%, 55%)",
+    brandColor: "from-rose-500 to-orange-500",
     image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=face",
   },
 ];
 
 export const TestimonialsSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const activeTestimonial = testimonials[activeIndex];
+
+  const nextTestimonial = () => {
+    setActiveIndex((prev) => (prev + 1) % testimonials.length);
+  };
+
+  const prevTestimonial = () => {
+    setActiveIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  };
 
   return (
-    <section id="testimonials" className="py-24 relative bg-secondary/30">
-      <div className="container relative z-10 px-4">
+    <section id="testimonials" className="py-24 bg-secondary/30">
+      <div className="container px-4">
         {/* Section Header */}
         <div className="max-w-3xl mx-auto text-center mb-16">
           <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold uppercase tracking-wider mb-6 border border-primary/20">
@@ -97,135 +99,120 @@ export const TestimonialsSection = () => {
           </p>
         </div>
 
-        {/* Testimonial Card */}
+        {/* Main Testimonial Display */}
         <div className="max-w-6xl mx-auto">
-          <div 
-            className="relative rounded-3xl overflow-hidden shadow-xl transition-all duration-500"
-            style={{ backgroundColor: activeTestimonial.brandColor }}
-          >
-            {/* Main Content Container */}
-            <div className="relative flex flex-col lg:flex-row min-h-[500px] lg:min-h-[450px]">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            {/* Left: Photo Grid */}
+            <div className="order-2 lg:order-1">
+              <div className="grid grid-cols-3 gap-3 max-w-md mx-auto lg:mx-0">
+                {testimonials.map((testimonial, index) => (
+                  <button
+                    key={testimonial.id}
+                    onClick={() => setActiveIndex(index)}
+                    className={`relative aspect-square rounded-2xl overflow-hidden transition-all duration-300 ${
+                      index === activeIndex 
+                        ? 'ring-4 ring-primary shadow-lg scale-105 z-10' 
+                        : 'opacity-60 hover:opacity-100 grayscale hover:grayscale-0'
+                    }`}
+                  >
+                    <img
+                      src={testimonial.image}
+                      alt={testimonial.author}
+                      className="w-full h-full object-cover"
+                    />
+                    {index === activeIndex && (
+                      <div className={`absolute inset-0 bg-gradient-to-t ${testimonial.brandColor} opacity-20`} />
+                    )}
+                  </button>
+                ))}
+              </div>
               
-              {/* Left: Content Pane */}
-              <div className="flex-1 p-8 lg:p-12 flex flex-col justify-center">
-                <div className="space-y-6">
+              {/* Navigation Arrows */}
+              <div className="flex justify-center gap-4 mt-6">
+                <button
+                  onClick={prevTestimonial}
+                  className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center hover:bg-secondary transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5 text-foreground" />
+                </button>
+                <button
+                  onClick={nextTestimonial}
+                  className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center hover:bg-secondary transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5 text-foreground" />
+                </button>
+              </div>
+            </div>
+
+            {/* Right: Content */}
+            <div className="order-1 lg:order-2">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeIndex}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-card rounded-3xl p-8 lg:p-10 border border-border shadow-lg"
+                >
                   {/* Metric */}
-                  <div className="flex items-baseline gap-3">
-                    <span className="text-6xl lg:text-8xl font-bold text-white/95">
-                      {activeTestimonial.metric}
+                  <div className={`inline-flex items-baseline gap-2 px-4 py-2 rounded-xl bg-gradient-to-r ${testimonials[activeIndex].brandColor} mb-6`}>
+                    <span className="text-3xl lg:text-4xl font-bold text-white">
+                      {testimonials[activeIndex].metric}
                     </span>
-                    <span className="text-lg lg:text-xl text-white/70 font-medium">
-                      {activeTestimonial.metricLabel}
+                    <span className="text-sm text-white/80 font-medium">
+                      {testimonials[activeIndex].metricLabel}
                     </span>
                   </div>
 
                   {/* Quote */}
-                  <div className="relative">
-                    <Quote className="absolute -top-2 -left-2 w-8 h-8 text-white/20" />
-                    <p className="text-white/90 text-lg lg:text-xl leading-relaxed pl-8">
-                      {activeTestimonial.quote}
+                  <div className="relative mb-8">
+                    <Quote className="absolute -top-2 -left-2 w-8 h-8 text-primary/20" />
+                    <p className="text-foreground text-lg lg:text-xl leading-relaxed pl-6">
+                      {testimonials[activeIndex].quote}
                     </p>
                   </div>
 
-                  {/* Author Info */}
-                  <div className="pt-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-semibold text-sm border border-white/30">
-                        {activeTestimonial.avatar}
+                  {/* Author */}
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-full overflow-hidden ring-2 ring-primary/20">
+                      <img
+                        src={testimonials[activeIndex].image}
+                        alt={testimonials[activeIndex].author}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-foreground text-lg">
+                        {testimonials[activeIndex].author}
                       </div>
-                      <div>
-                        <div className="font-semibold text-white text-lg">{activeTestimonial.author}</div>
-                        <div className="text-white/70 text-sm">{activeTestimonial.role} at {activeTestimonial.company}</div>
+                      <div className="text-muted-foreground text-sm">
+                        {testimonials[activeIndex].role} at {testimonials[activeIndex].company}
                       </div>
                     </div>
                   </div>
 
                   {/* Rating */}
-                  <div className="flex gap-1 pt-2">
+                  <div className="flex gap-1 mt-6 pt-6 border-t border-border">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-white/90 text-white/90" />
+                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                </div>
-              </div>
-
-              {/* Right: Portrait Gallery */}
-              <div className="lg:w-[420px] p-6 lg:p-8 flex items-center">
-                <div className="flex lg:flex-col gap-3 w-full overflow-x-auto lg:overflow-visible pb-2 lg:pb-0">
-                  {testimonials.map((testimonial, index) => {
-                    const isActive = index === activeIndex;
-                    
-                    return (
-                      <button
-                        key={testimonial.id}
-                        onClick={() => setActiveIndex(index)}
-                        className={`relative flex-shrink-0 rounded-2xl overflow-hidden transition-all duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
-                          isActive 
-                            ? 'w-full lg:w-full h-28 lg:h-32' 
-                            : 'w-20 lg:w-full h-20 lg:h-16'
-                        }`}
-                      >
-                        {/* Portrait Image */}
-                        <div
-                          className={`absolute inset-0 transition-all duration-500 ${isActive ? 'grayscale-0' : 'grayscale'}`}
-                        >
-                          <img
-                            src={testimonial.image}
-                            alt={testimonial.author}
-                            className="w-full h-full object-cover"
-                          />
-                          {/* Overlay */}
-                          <div 
-                            className={`absolute inset-0 transition-all duration-400 ${isActive ? 'bg-black/10' : 'bg-black/40'}`}
-                          />
-                        </div>
-
-                        {/* Active Card Content */}
-                        {isActive && (
-                          <div className="absolute inset-0 flex items-center justify-between px-5">
-                            <div className="text-left">
-                              <div className="text-white font-semibold text-sm">{testimonial.author}</div>
-                              <div className="text-white/70 text-xs">{testimonial.company}</div>
-                            </div>
-                            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white/20">
-                              <ArrowRight className="w-5 h-5 text-white" />
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Inactive: Small avatar indicator */}
-                        {!isActive && (
-                          <div className="absolute inset-0 flex items-center justify-center lg:justify-start lg:px-4">
-                            <div className="hidden lg:block text-white/80 text-sm font-medium truncate">
-                              {testimonial.author}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Selection indicator */}
-                        <div
-                          className={`absolute left-0 top-0 bottom-0 w-1 rounded-r-full transition-all duration-300 ${
-                            isActive ? 'bg-white/90 scale-y-100' : 'bg-transparent scale-y-0'
-                          }`}
-                        />
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
 
-          {/* Navigation Dots for Mobile */}
-          <div className="flex justify-center gap-2 mt-6 lg:hidden">
+          {/* Dots Navigation for Mobile */}
+          <div className="flex justify-center gap-2 mt-8 lg:hidden">
             {testimonials.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setActiveIndex(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                className={`transition-all duration-300 rounded-full ${
                   index === activeIndex 
-                    ? 'w-8 bg-primary' 
-                    : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                    ? 'w-8 h-2 bg-primary' 
+                    : 'w-2 h-2 bg-muted-foreground/30 hover:bg-muted-foreground/50'
                 }`}
               />
             ))}
