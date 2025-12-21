@@ -355,34 +355,8 @@ const Contact = () => {
           </div>
         </section>
 
-        {/* AI Assistant Section */}
-        <section className="py-16 px-4 bg-secondary/30">
-          <div className="container mx-auto max-w-4xl">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-heading font-bold mb-4 text-foreground">
-                Talk to Our AI Assistant
-              </h2>
-              <p className="text-muted-foreground">
-                Get instant answers and support from our AI-powered assistant.
-              </p>
-            </div>
-            <div className="flex justify-center">
-              <div className="w-full max-w-3xl rounded-2xl overflow-hidden border border-border shadow-lg bg-card">
-                <iframe
-                  src="https://lab.anam.ai/frame/jCNbKlQSLCFZ_kyvhguLz"
-                  width="100%"
-                  height="480"
-                  allow="microphone"
-                  className="block"
-                  title="AI Assistant"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* FAQ CTA */}
-        <section className="py-16 px-4">
+        <section className="py-16 px-4 bg-secondary/30">
           <div className="container mx-auto max-w-4xl text-center">
             <h2 className="text-2xl md:text-3xl font-heading font-bold mb-4 text-foreground">
               Looking for Quick Answers?
