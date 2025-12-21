@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        heading: ['Syne', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
+        heading: ['Space Grotesk', 'sans-serif'],
+        body: ['Plus Jakarta Sans', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -67,6 +67,12 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      boxShadow: {
+        'soft': '0 2px 8px -2px hsl(var(--foreground) / 0.08)',
+        'medium': '0 4px 12px -4px hsl(var(--foreground) / 0.12)',
+        'large': '0 8px 24px -8px hsl(var(--foreground) / 0.15)',
+        'primary': '0 4px 14px hsl(var(--primary) / 0.25)',
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -93,8 +99,7 @@ export default {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'hero-glow': 'radial-gradient(ellipse at center, hsl(var(--primary) / 0.12) 0%, transparent 70%)',
-        'mesh-gradient': 'radial-gradient(at 40% 20%, hsl(var(--primary) / 0.08) 0px, transparent 50%), radial-gradient(at 80% 0%, hsl(var(--accent) / 0.08) 0px, transparent 50%)',
+        'hero-glow': 'radial-gradient(ellipse at center, hsl(var(--primary) / 0.08) 0%, transparent 70%)',
       },
     },
   },

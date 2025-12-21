@@ -1,6 +1,6 @@
 import { ArrowRight, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export const Footer = () => {
   const footerLinks = {
@@ -10,141 +10,77 @@ export const Footer = () => {
     Legal: ['Terms of Service', 'Privacy Policy', 'Cookie Policy', 'GDPR'],
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut" as const,
-      },
-    },
-  };
-
   return (
-    <footer className="border-t border-border">
+    <footer className="border-t border-border bg-background">
       {/* CTA Section */}
-      <motion.div 
-        className="py-20 bg-gradient-to-b from-card/50 to-background"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8 }}
-      >
+      <div className="py-20 bg-gradient-to-b from-secondary/50 to-background">
         <div className="container px-4">
-          <motion.div 
-            className="max-w-3xl mx-auto text-center"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            <h2 className="font-heading text-3xl md:text-5xl font-bold mb-6">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="font-heading text-3xl md:text-5xl font-bold mb-6 text-foreground">
               Ready to Give Your AI{' '}
               <span className="gradient-text">Perfect Memory?</span>
             </h2>
             <p className="text-muted-foreground text-lg mb-8">
               Start building with MaxMemory today. Free tier available with generous limits.
             </p>
-            <motion.div 
-              className="flex flex-col sm:flex-row items-center justify-center gap-4"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-            >
-              <Button variant="hero" size="xl" className="group">
-                Start Free
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button variant="outline" size="xl">
-                Talk to Sales
-              </Button>
-            </motion.div>
-          </motion.div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link to="/auth">
+                <Button size="xl" className="group">
+                  Start Free
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <Link to="/contact">
+                <Button variant="outline" size="xl">
+                  Talk to Sales
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Links Section */}
-      <motion.div 
-        className="py-16"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-        variants={containerVariants}
-      >
+      <div className="py-16">
         <div className="container px-4">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
             {/* Brand */}
-            <motion.div 
-              className="col-span-2 md:col-span-1"
-              variants={itemVariants}
-            >
-              <a href="/" className="flex items-center gap-2 mb-4">
-                <motion.div 
-                  className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center"
-                  whileHover={{ scale: 1.1, rotate: 10 }}
-                  transition={{ duration: 0.3 }}
-                >
+            <div className="col-span-2 md:col-span-1">
+              <Link to="/" className="flex items-center gap-2 mb-4">
+                <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
                   <Zap className="w-5 h-5 text-primary-foreground" />
-                </motion.div>
-                <span className="font-heading font-bold text-xl">MaxMemory</span>
-              </a>
+                </div>
+                <span className="font-heading font-bold text-xl text-foreground">MaxMemory</span>
+              </Link>
               <p className="text-sm text-muted-foreground">
                 The memory layer for AI applications.
               </p>
-            </motion.div>
+            </div>
 
             {/* Links */}
-            {Object.entries(footerLinks).map(([category, links], categoryIndex) => (
-              <motion.div 
-                key={category}
-                variants={itemVariants}
-              >
-                <h4 className="font-semibold mb-4">{category}</h4>
+            {Object.entries(footerLinks).map(([category, links]) => (
+              <div key={category}>
+                <h4 className="font-semibold mb-4 text-foreground">{category}</h4>
                 <ul className="space-y-2">
-                  {links.map((link, linkIndex) => (
-                    <motion.li 
-                      key={link}
-                      initial={{ opacity: 0, x: -10 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.1 * linkIndex, duration: 0.3 }}
-                    >
+                  {links.map((link) => (
+                    <li key={link}>
                       <a
                         href="#"
                         className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {link}
                       </a>
-                    </motion.li>
+                    </li>
                   ))}
                 </ul>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Bottom Bar */}
-      <motion.div 
-        className="py-6 border-t border-border"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-      >
+      <div className="py-6 border-t border-border">
         <div className="container px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
@@ -162,20 +98,18 @@ export const Footer = () => {
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>,
               ].map((icon, i) => (
-                <motion.a 
+                <a 
                   key={i}
                   href="#" 
                   className="text-muted-foreground hover:text-foreground transition-colors"
-                  whileHover={{ scale: 1.2, y: -2 }}
-                  transition={{ duration: 0.2 }}
                 >
                   {icon}
-                </motion.a>
+                </a>
               ))}
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
     </footer>
   );
 };
