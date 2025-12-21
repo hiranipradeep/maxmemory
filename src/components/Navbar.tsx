@@ -23,8 +23,8 @@ const navLinks = [
 const useCases = [
   { name: 'Healthcare', href: '/use-cases/health', icon: Heart, color: 'text-primary' },
   { name: 'Education', href: '/use-cases/education', icon: GraduationCap, color: 'text-accent' },
-  { name: 'Finance', href: '/use-cases/finance', icon: TrendingUp, color: 'text-emerald-400' },
-  { name: 'Enterprise', href: '/use-cases/enterprise', icon: Building2, color: 'text-orange-400' },
+  { name: 'Finance', href: '/use-cases/finance', icon: TrendingUp, color: 'text-emerald-600' },
+  { name: 'Enterprise', href: '/use-cases/enterprise', icon: Building2, color: 'text-orange-600' },
 ];
 
 export const Navbar = () => {
@@ -42,11 +42,11 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary via-primary to-accent flex items-center justify-center group-hover:shadow-[0_0_24px_hsl(var(--primary)/0.5)] transition-all duration-300 group-hover:scale-105">
+            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center group-hover:shadow-primary transition-all duration-300">
               <Zap className="w-5 h-5 text-primary-foreground" />
             </div>
             <span className="font-heading font-bold text-xl text-foreground tracking-tight">MaxMemory</span>
@@ -76,7 +76,7 @@ export const Navbar = () => {
                 Use Cases
                 <ChevronDown className="w-4 h-4" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-card/95 backdrop-blur-xl border-border/50 min-w-[200px]">
+              <DropdownMenuContent className="bg-card border-border min-w-[200px] shadow-large">
                 {useCases.map((useCase) => (
                   <DropdownMenuItem key={useCase.name} asChild>
                     <Link 
@@ -101,7 +101,7 @@ export const Navbar = () => {
                   </Button>
                 </Link>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-medium text-sm">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium text-sm">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                   <Button variant="ghost" size="icon" onClick={handleLogout}>
@@ -117,7 +117,7 @@ export const Navbar = () => {
                   </Button>
                 </Link>
                 <Link to="/auth">
-                  <Button variant="hero" size="sm" className="animate-glow-pulse">
+                  <Button size="sm">
                     Get Started
                   </Button>
                 </Link>
@@ -184,7 +184,7 @@ export const Navbar = () => {
                       </Button>
                     </Link>
                     <Link to="/auth" onClick={() => setIsOpen(false)}>
-                      <Button variant="hero" className="w-full justify-center">
+                      <Button className="w-full justify-center">
                         Get Started
                       </Button>
                     </Link>

@@ -1,6 +1,3 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
-
 const logos = [
   {
     name: 'OpenAI',
@@ -56,58 +53,34 @@ const logos = [
 ];
 
 export const LogoCarousel = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"]
-  });
-
-  const scale = useTransform(scrollYProgress, [0, 0.2, 0.5, 0.8, 1], [0.85, 0.95, 1, 0.95, 0.85]);
-  const opacity = useTransform(scrollYProgress, [0, 0.15, 0.5, 0.85, 1], [0.3, 1, 1, 1, 0.3]);
-  const y = useTransform(scrollYProgress, [0, 0.5, 1], [40, 0, -40]);
-
   return (
-    <div ref={sectionRef} className="relative">
-      <motion.section 
-        className="py-16 border-y border-border/50 overflow-hidden"
-        style={{ scale, opacity, y }}
-      >
-        <div className="container px-4 mb-8">
-          <motion.p 
-            className="text-center text-sm text-muted-foreground"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            Trusted by teams building with leading AI providers
-          </motion.p>
-        </div>
+    <section className="py-16 border-y border-border overflow-hidden bg-secondary/30">
+      <div className="container px-4 mb-8">
+        <p className="text-center text-sm text-muted-foreground">
+          Trusted by teams building with leading AI providers
+        </p>
+      </div>
+      
+      <div className="relative">
+        {/* Gradient overlays */}
+        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-secondary/30 to-transparent z-10" />
+        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-secondary/30 to-transparent z-10" />
         
-        <div className="relative">
-          {/* Gradient overlays */}
-          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-background to-transparent z-10" />
-          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background to-transparent z-10" />
-          
-          {/* Scrolling logos */}
-          <div className="flex animate-marquee">
-            {[...logos, ...logos].map((logo, index) => (
-              <motion.div
-                key={`${logo.name}-${index}`}
-                className="flex items-center justify-center mx-12 text-muted-foreground/60 hover:text-foreground transition-colors duration-300"
-                whileHover={{ scale: 1.1 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="flex items-center gap-3">
-                  {logo.svg}
-                  <span className="font-medium text-lg whitespace-nowrap">{logo.name}</span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+        {/* Scrolling logos */}
+        <div className="flex animate-marquee">
+          {[...logos, ...logos].map((logo, index) => (
+            <div
+              key={`${logo.name}-${index}`}
+              className="flex items-center justify-center mx-12 text-muted-foreground/60 hover:text-foreground transition-colors duration-300"
+            >
+              <div className="flex items-center gap-3">
+                {logo.svg}
+                <span className="font-medium text-lg whitespace-nowrap">{logo.name}</span>
+              </div>
+            </div>
+          ))}
         </div>
-      </motion.section>
-    </div>
+      </div>
+    </section>
   );
 };

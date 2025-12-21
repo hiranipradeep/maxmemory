@@ -1,236 +1,73 @@
 import { ArrowRight, Clock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { blogPosts } from '@/data/blogData';
 
-const blogs = blogPosts.slice(0, 4).map(post => ({
-  ...post,
-  color: post.category === 'Technical' ? 'from-violet-900 to-purple-950' :
-         post.category === 'Tutorial' ? 'from-cyan-900 to-blue-950' :
-         post.category === 'Research' ? 'from-emerald-900 to-teal-950' :
-         'from-amber-900 to-orange-950',
-}));
-
-interface BlogCardProps {
-  blog: typeof blogs[0];
-  index: number;
-  totalCards: number;
-  containerRef: React.RefObject<HTMLDivElement>;
-}
-
-const BlogCard = ({ blog, index, totalCards, containerRef }: BlogCardProps) => {
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
-
-  const cardProgress = index / totalCards;
-  const nextCardProgress = (index + 1) / totalCards;
-
-  // Scale down as the next card overlaps
-  const scale = useTransform(
-    scrollYProgress,
-    [cardProgress, nextCardProgress],
-    [1, 0.92]
-  );
-
-  // Darken as the card gets pushed back
-  const opacity = useTransform(
-    scrollYProgress,
-    [cardProgress, nextCardProgress],
-    [1, 0.6]
-  );
-
-  // Add slight y movement for parallax depth
-  const y = useTransform(
-    scrollYProgress,
-    [cardProgress, nextCardProgress],
-    [0, -30]
-  );
-
-  return (
-    <div 
-      className="sticky top-24 h-[70vh] min-h-[500px]"
-      style={{ zIndex: totalCards + index }}
-    >
-      <motion.article
-        style={{ scale, y }}
-        className="h-full w-full cursor-pointer group"
-      >
-        <Link to={`/blog/${blog.id}`}>
-          <motion.div 
-            style={{ opacity }}
-            className={`relative h-full w-full rounded-3xl overflow-hidden border border-border`}
-          >
-            {/* Solid Background to prevent image bleed-through */}
-            <div className="absolute inset-0 bg-background" />
-            
-            {/* Background Image with Overlay */}
-            <div className="absolute inset-0">
-              <img 
-                src={blog.image} 
-                alt={blog.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/30" />
-            </div>
-            
-            {/* Top edge shadow for stacking effect */}
-            <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-black/20 to-transparent pointer-events-none" />
-
-            {/* Content */}
-            <div className="relative h-full flex flex-col justify-end p-8 md:p-12 lg:p-16">
-              {/* Category Badge */}
-              <motion.span 
-                className="inline-block w-fit px-4 py-1.5 rounded-full bg-primary/20 text-primary text-sm font-medium mb-6 backdrop-blur-sm"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-              >
-                {blog.category}
-              </motion.span>
-
-              {/* Title */}
-              <motion.h3 
-                className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold mb-4 group-hover:text-primary transition-colors duration-300 max-w-3xl"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                {blog.title}
-              </motion.h3>
-
-              {/* Excerpt */}
-              <motion.p 
-                className="text-muted-foreground text-lg md:text-xl mb-8 max-w-2xl leading-relaxed"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-              >
-                {blog.excerpt}
-              </motion.p>
-
-              {/* Meta & CTA */}
-              <motion.div 
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    <span>{blog.author}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    <span>{blog.readTime}</span>
-                  </div>
-                  <span className="hidden sm:inline">{blog.date}</span>
-                </div>
-                
-                <Button variant="ghost" className="w-fit group/btn">
-                  Read Article
-                  <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                </Button>
-              </motion.div>
-            </div>
-
-            {/* Card Number Indicator */}
-            <div className="absolute top-8 right-8 md:top-12 md:right-12">
-              <span className="text-6xl md:text-8xl font-bold text-foreground/5">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-            </div>
-          </motion.div>
-        </Link>
-      </motion.article>
-    </div>
-  );
-};
+const blogs = blogPosts.slice(0, 3);
 
 export const BlogSection = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const sectionRef = useRef<HTMLDivElement>(null);
-  
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"]
-  });
-
-  const scale = useTransform(scrollYProgress, [0, 0.1, 0.3, 0.9, 1], [0.9, 0.95, 1, 1, 0.9]);
-  const opacity = useTransform(scrollYProgress, [0, 0.1, 0.3, 0.95, 1], [0.3, 0.8, 1, 1, 0.3]);
-  const glowOpacity = useTransform(scrollYProgress, [0, 0.2, 0.4, 0.8, 1], [0, 0.5, 1, 0.5, 0]);
-
   return (
-    <div ref={sectionRef} className="relative">
-      {/* Transition glow */}
-      <motion.div className="absolute inset-0 pointer-events-none z-0" style={{ opacity: glowOpacity }}>
-        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/10 to-transparent" />
-      </motion.div>
-      
-      <motion.section id="blog" className="py-24 bg-background" style={{ scale, opacity }}>
-        <div className="container px-4">
-          {/* Section Header */}
-          <motion.div 
-            className="flex flex-col md:flex-row md:items-end justify-between mb-16"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div>
-              <motion.span 
-                className="text-primary text-sm font-semibold uppercase tracking-wider mb-4 block"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-              >
-                Blog
-              </motion.span>
-              <h2 className="font-heading text-3xl md:text-5xl font-bold">
-                Latest Insights
-              </h2>
-              <p className="text-muted-foreground mt-4 max-w-lg">
-                Deep dives into AI, memory systems, and the future of intelligent applications.
-              </p>
-            </div>
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <Link to="/blog">
-                <Button variant="ghost" className="mt-4 md:mt-0 group">
-                  View All Posts
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-            </motion.div>
-          </motion.div>
-
-          {/* Sticky Stack Container */}
-          <div 
-            ref={containerRef}
-            className="relative"
-            style={{ height: `${blogs.length * 80}vh` }}
-          >
-            {blogs.map((blog, index) => (
-              <BlogCard
-                key={blog.id}
-                blog={blog}
-                index={index}
-                totalCards={blogs.length}
-                containerRef={containerRef}
-              />
-            ))}
+    <section id="blog" className="py-24 bg-secondary/30">
+      <div className="container px-4">
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+          <div>
+            <span className="text-primary text-sm font-semibold uppercase tracking-wider mb-4 block">
+              Blog
+            </span>
+            <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground">
+              Latest Insights
+            </h2>
+            <p className="text-muted-foreground mt-4 max-w-lg">
+              Deep dives into AI, memory systems, and the future of intelligent applications.
+            </p>
           </div>
+          <Link to="/blog">
+            <Button variant="ghost" className="mt-4 md:mt-0 group">
+              View All Posts
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
         </div>
-      </motion.section>
-    </div>
+
+        {/* Blog Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {blogs.map((blog) => (
+            <Link key={blog.id} to={`/blog/${blog.id}`}>
+              <article className="group glass-card overflow-hidden hover:shadow-large transition-all duration-300">
+                <div className="aspect-video overflow-hidden">
+                  <img 
+                    src={blog.image} 
+                    alt={blog.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <div className="p-6">
+                  <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-3">
+                    {blog.category}
+                  </span>
+                  <h3 className="font-heading text-lg font-semibold mb-2 text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                    {blog.title}
+                  </h3>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                    {blog.excerpt}
+                  </p>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <User className="w-3 h-3" />
+                      <span>{blog.author}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      <span>{blog.readTime}</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 };
