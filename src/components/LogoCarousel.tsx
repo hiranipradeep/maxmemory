@@ -54,31 +54,46 @@ const logos = [
 
 export const LogoCarousel = () => {
   return (
-    <section className="py-16 border-y border-border overflow-hidden bg-secondary/30">
+    <section className="py-16 border-y border-border overflow-hidden bg-secondary/50">
       <div className="container px-4 mb-8">
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm font-medium text-muted-foreground">
           Trusted by teams building with leading AI providers
         </p>
       </div>
       
       <div className="relative">
         {/* Gradient overlays */}
-        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-secondary/30 to-transparent z-10" />
-        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-secondary/30 to-transparent z-10" />
+        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-secondary/50 via-secondary/25 to-transparent z-10" />
+        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-secondary/50 via-secondary/25 to-transparent z-10" />
         
-        {/* Scrolling logos */}
-        <div className="flex animate-marquee">
-          {[...logos, ...logos].map((logo, index) => (
-            <div
-              key={`${logo.name}-${index}`}
-              className="flex items-center justify-center mx-12 text-muted-foreground/60 hover:text-foreground transition-colors duration-300"
-            >
-              <div className="flex items-center gap-3">
-                {logo.svg}
-                <span className="font-medium text-lg whitespace-nowrap">{logo.name}</span>
+        {/* Scrolling logos - First row */}
+        <div className="flex">
+          <div className="flex animate-scroll-left">
+            {[...logos, ...logos, ...logos].map((logo, index) => (
+              <div
+                key={`first-${logo.name}-${index}`}
+                className="flex items-center justify-center mx-12 text-muted-foreground hover:text-primary transition-colors duration-300"
+              >
+                <div className="flex items-center gap-3">
+                  {logo.svg}
+                  <span className="font-medium text-lg whitespace-nowrap">{logo.name}</span>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <div className="flex animate-scroll-left" aria-hidden="true">
+            {[...logos, ...logos, ...logos].map((logo, index) => (
+              <div
+                key={`second-${logo.name}-${index}`}
+                className="flex items-center justify-center mx-12 text-muted-foreground hover:text-primary transition-colors duration-300"
+              >
+                <div className="flex items-center gap-3">
+                  {logo.svg}
+                  <span className="font-medium text-lg whitespace-nowrap">{logo.name}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
