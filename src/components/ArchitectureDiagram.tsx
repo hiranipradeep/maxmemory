@@ -12,7 +12,7 @@ import {
   LayoutGrid, 
   Brain, 
   MessageSquare,
-  ArrowDown
+  ChevronDown
 } from "lucide-react";
 
 const pipelineSteps = [
@@ -92,6 +92,71 @@ const pipelineSteps = [
   }
 ];
 
+// Animated data flow particle component
+const DataFlowParticle = ({ delay = 0 }: { delay?: number }) => (
+  <motion.div
+    className="absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-primary shadow-lg shadow-primary/50"
+    initial={{ y: 0, opacity: 0, scale: 0.5 }}
+    animate={{ 
+      y: [0, 100], 
+      opacity: [0, 1, 1, 0],
+      scale: [0.5, 1, 1, 0.5]
+    }}
+    transition={{
+      duration: 2,
+      delay,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }}
+  />
+);
+
+// Animated connecting arrow between stages
+const FlowArrow = ({ index }: { index: number }) => (
+  <div className="absolute left-1/2 -translate-x-1/2 h-8 flex flex-col items-center justify-center" style={{ top: '100%' }}>
+    {/* Animated line */}
+    <div className="relative w-0.5 h-full overflow-hidden">
+      <motion.div
+        className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary/20 to-primary"
+        initial={{ y: '-100%' }}
+        animate={{ y: '100%' }}
+        transition={{
+          duration: 1.5,
+          delay: index * 0.15,
+          repeat: Infinity,
+          ease: "linear"
+        }}
+      />
+    </div>
+    {/* Arrow head */}
+    <motion.div
+      animate={{ y: [0, 3, 0] }}
+      transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+    >
+      <ChevronDown className="w-4 h-4 text-primary" />
+    </motion.div>
+  </div>
+);
+
+// Mobile flow arrow
+const MobileFlowArrow = ({ index }: { index: number }) => (
+  <div className="absolute left-6 -translate-x-1/2 h-6 flex flex-col items-center justify-center" style={{ top: '100%' }}>
+    <div className="relative w-0.5 h-full overflow-hidden">
+      <motion.div
+        className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary/20 to-primary"
+        initial={{ y: '-100%' }}
+        animate={{ y: '100%' }}
+        transition={{
+          duration: 1.5,
+          delay: index * 0.1,
+          repeat: Infinity,
+          ease: "linear"
+        }}
+      />
+    </div>
+  </div>
+);
+
 export const ArchitectureDiagram = () => {
   return (
     <section className="py-24 px-4 relative overflow-hidden">
@@ -124,8 +189,25 @@ export const ArchitectureDiagram = () => {
           {/* Desktop View - Vertical Flow */}
           <div className="hidden lg:block">
             <div className="relative">
-              {/* Central Line */}
-              <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-primary to-yellow-500 transform -translate-x-1/2" />
+              {/* Central Animated Line */}
+              <div className="absolute left-1/2 top-0 bottom-0 w-1 transform -translate-x-1/2 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-blue-500/30 via-primary/30 to-yellow-500/30" />
+                {/* Multiple flowing particles */}
+                {[0, 0.4, 0.8, 1.2, 1.6].map((delay, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute left-1/2 -translate-x-1/2 w-2 h-8 rounded-full bg-gradient-to-b from-transparent via-primary to-transparent"
+                    initial={{ top: '-5%' }}
+                    animate={{ top: '105%' }}
+                    transition={{
+                      duration: 4,
+                      delay,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                  />
+                ))}
+              </div>
               
               {pipelineSteps.map((step, index) => (
                 <motion.div
@@ -134,10 +216,43 @@ export const ArchitectureDiagram = () => {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className={`relative flex items-center mb-8 ${
+                  className={`relative flex items-center mb-16 ${
                     index % 2 === 0 ? "flex-row" : "flex-row-reverse"
                   }`}
                 >
+                  {/* Connecting line from card to center */}
+                  <div 
+                    className={`absolute top-1/2 -translate-y-1/2 h-0.5 w-[5%] overflow-hidden ${
+                      index % 2 === 0 ? 'right-[50%] mr-6' : 'left-[50%] ml-6'
+                    }`}
+                  >
+                    <motion.div
+                      className={`absolute top-0 h-full w-full bg-gradient-to-r ${
+                        index % 2 === 0 ? 'from-primary/50 to-primary' : 'from-primary to-primary/50'
+                      }`}
+                      initial={{ scaleX: 0 }}
+                      whileInView={{ scaleX: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
+                      style={{ transformOrigin: index % 2 === 0 ? 'right' : 'left' }}
+                    />
+                    {/* Flowing dot on horizontal line */}
+                    <motion.div
+                      className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary shadow-lg shadow-primary/50"
+                      initial={{ x: index % 2 === 0 ? '100%' : '-100%', opacity: 0 }}
+                      animate={{ 
+                        x: index % 2 === 0 ? [100, 0] : [0, 100],
+                        opacity: [0, 1, 1, 0]
+                      }}
+                      transition={{
+                        duration: 1.5,
+                        delay: index * 0.2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    />
+                  </div>
+
                   {/* Content Card */}
                   <div className={`w-[45%] ${index % 2 === 0 ? "pr-8 text-right" : "pl-8 text-left"}`}>
                     <motion.div
@@ -164,7 +279,7 @@ export const ArchitectureDiagram = () => {
                       </div>
                       <ul className={`text-sm text-muted-foreground space-y-1 ${index % 2 === 0 ? "text-right" : "text-left"}`}>
                         {step.details.map((detail, i) => (
-                          <li key={i} className="flex items-center gap-2 justify-inherit">
+                          <li key={i} className={`flex items-center gap-2 ${index % 2 === 0 ? "justify-end" : "justify-start"}`}>
                             {index % 2 !== 0 && <span className="w-1.5 h-1.5 rounded-full bg-primary/50" />}
                             <span>{detail}</span>
                             {index % 2 === 0 && <span className="w-1.5 h-1.5 rounded-full bg-primary/50" />}
@@ -178,10 +293,27 @@ export const ArchitectureDiagram = () => {
                   <div className="absolute left-1/2 transform -translate-x-1/2 z-10">
                     <motion.div
                       whileHover={{ scale: 1.2 }}
-                      className={`w-12 h-12 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}
+                      className={`relative w-14 h-14 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}
                     >
-                      <step.icon className="w-6 h-6 text-white" />
+                      {/* Pulse ring */}
+                      <motion.div
+                        className={`absolute inset-0 rounded-full bg-gradient-to-br ${step.color}`}
+                        animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      />
+                      <step.icon className="w-6 h-6 text-white relative z-10" />
                     </motion.div>
+                    
+                    {/* Downward arrow indicator (except last) */}
+                    {index < pipelineSteps.length - 1 && (
+                      <motion.div
+                        className="absolute left-1/2 -translate-x-1/2 mt-2"
+                        animate={{ y: [0, 5, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                      >
+                        <ChevronDown className="w-5 h-5 text-primary/70" />
+                      </motion.div>
+                    )}
                   </div>
 
                   {/* Empty Space */}
@@ -194,8 +326,25 @@ export const ArchitectureDiagram = () => {
           {/* Mobile/Tablet View - Single Column */}
           <div className="lg:hidden">
             <div className="relative">
-              {/* Left Line */}
-              <div className="absolute left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-primary to-yellow-500" />
+              {/* Left Animated Line */}
+              <div className="absolute left-6 top-0 bottom-0 w-1 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-blue-500/30 via-primary/30 to-yellow-500/30" />
+                {/* Flowing particles */}
+                {[0, 0.6, 1.2].map((delay, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute left-1/2 -translate-x-1/2 w-2 h-6 rounded-full bg-gradient-to-b from-transparent via-primary to-transparent"
+                    initial={{ top: '-3%' }}
+                    animate={{ top: '103%' }}
+                    transition={{
+                      duration: 5,
+                      delay,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                  />
+                ))}
+              </div>
               
               {pipelineSteps.map((step, index) => (
                 <motion.div
@@ -204,15 +353,21 @@ export const ArchitectureDiagram = () => {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
-                  className="relative flex items-start mb-6 pl-16"
+                  className="relative flex items-start mb-8 pl-16"
                 >
                   {/* Node */}
                   <div className="absolute left-0 z-10">
                     <motion.div
                       whileHover={{ scale: 1.1 }}
-                      className={`w-12 h-12 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}
+                      className={`relative w-12 h-12 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}
                     >
-                      <step.icon className="w-5 h-5 text-white" />
+                      {/* Pulse ring */}
+                      <motion.div
+                        className={`absolute inset-0 rounded-full bg-gradient-to-br ${step.color}`}
+                        animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0, 0.4] }}
+                        transition={{ duration: 2, delay: index * 0.1, repeat: Infinity, ease: "easeInOut" }}
+                      />
+                      <step.icon className="w-5 h-5 text-white relative z-10" />
                     </motion.div>
                   </div>
 
