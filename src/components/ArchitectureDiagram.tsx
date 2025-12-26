@@ -1,0 +1,274 @@
+import { motion } from "framer-motion";
+import { 
+  FileText, 
+  Settings, 
+  Sparkles, 
+  Layers, 
+  Cpu, 
+  Database, 
+  Network, 
+  Zap, 
+  Search, 
+  LayoutGrid, 
+  Brain, 
+  MessageSquare,
+  ArrowDown
+} from "lucide-react";
+
+const pipelineSteps = [
+  {
+    icon: FileText,
+    title: "Document Ingestion",
+    subtitle: "User / System Input",
+    details: ["PDF, DOCX, TXT", "Web URL, Email", "Notes & Documents"],
+    color: "from-blue-500 to-cyan-500"
+  },
+  {
+    icon: Settings,
+    title: "Pre-Processing Layer",
+    details: ["File validation", "Language detection", "Text extraction (OCR)", "Metadata extraction"],
+    color: "from-cyan-500 to-teal-500"
+  },
+  {
+    icon: Sparkles,
+    title: "Content Cleaning",
+    details: ["Remove noise", "Normalize text", "Section detection", "Paragraph structuring"],
+    color: "from-teal-500 to-green-500"
+  },
+  {
+    icon: Layers,
+    title: "Chunking Engine",
+    details: ["Semantic chunking", "Token optimization", "Context-preserving splits"],
+    color: "from-green-500 to-emerald-500"
+  },
+  {
+    icon: Cpu,
+    title: "Embedding Generation",
+    details: ["Chunks → Vectors", "OpenAI / BGE / E5", "High-dimensional space"],
+    color: "from-emerald-500 to-primary"
+  },
+  {
+    icon: Database,
+    title: "Vector Storage",
+    details: ["Pinecone / Weaviate", "FAISS indexing", "User isolation"],
+    color: "from-primary to-violet-500"
+  },
+  {
+    icon: Network,
+    title: "Knowledge Graph",
+    subtitle: "Optional Enhancement",
+    details: ["Entity extraction", "Relationship mapping", "Cross-doc linking"],
+    color: "from-violet-500 to-purple-500"
+  },
+  {
+    icon: Zap,
+    title: "Memory Optimization",
+    details: ["Deduplication", "Importance scoring", "Relevance weighting"],
+    color: "from-purple-500 to-pink-500"
+  },
+  {
+    icon: Search,
+    title: "Query & Recall",
+    details: ["Semantic search", "Top-K retrieval", "Similarity matching"],
+    color: "from-pink-500 to-rose-500"
+  },
+  {
+    icon: LayoutGrid,
+    title: "Context Builder",
+    details: ["Rank & merge chunks", "Token management", "Prompt-ready context"],
+    color: "from-rose-500 to-orange-500"
+  },
+  {
+    icon: Brain,
+    title: "LLM Reasoning",
+    details: ["GPT / Claude / Local", "Memory as context", "Grounded responses"],
+    color: "from-orange-500 to-amber-500"
+  },
+  {
+    icon: MessageSquare,
+    title: "Response & Update",
+    details: ["Answer to user", "Feedback loop", "Memory reinforcement"],
+    color: "from-amber-500 to-yellow-500"
+  }
+];
+
+export const ArchitectureDiagram = () => {
+  return (
+    <section className="py-24 px-4 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+      
+      <div className="container mx-auto relative z-10">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            System Architecture
+          </span>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            How <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">MemoryMax</span> Works
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            A comprehensive pipeline that transforms your documents into intelligent, queryable memory
+          </p>
+        </motion.div>
+
+        {/* Pipeline Diagram */}
+        <div className="max-w-5xl mx-auto">
+          {/* Desktop View - Vertical Flow */}
+          <div className="hidden lg:block">
+            <div className="relative">
+              {/* Central Line */}
+              <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-primary to-yellow-500 transform -translate-x-1/2" />
+              
+              {pipelineSteps.map((step, index) => (
+                <motion.div
+                  key={step.title}
+                  initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`relative flex items-center mb-8 ${
+                    index % 2 === 0 ? "flex-row" : "flex-row-reverse"
+                  }`}
+                >
+                  {/* Content Card */}
+                  <div className={`w-[45%] ${index % 2 === 0 ? "pr-8 text-right" : "pl-8 text-left"}`}>
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      className="bg-card/80 backdrop-blur-sm border border-border rounded-xl p-5 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10"
+                    >
+                      <div className={`flex items-center gap-3 mb-3 ${index % 2 === 0 ? "justify-end" : "justify-start"}`}>
+                        {index % 2 !== 0 && (
+                          <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${step.color} flex items-center justify-center`}>
+                            <step.icon className="w-5 h-5 text-white" />
+                          </div>
+                        )}
+                        <div>
+                          <h3 className="font-bold text-foreground">{step.title}</h3>
+                          {step.subtitle && (
+                            <p className="text-xs text-muted-foreground">{step.subtitle}</p>
+                          )}
+                        </div>
+                        {index % 2 === 0 && (
+                          <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${step.color} flex items-center justify-center`}>
+                            <step.icon className="w-5 h-5 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      <ul className={`text-sm text-muted-foreground space-y-1 ${index % 2 === 0 ? "text-right" : "text-left"}`}>
+                        {step.details.map((detail, i) => (
+                          <li key={i} className="flex items-center gap-2 justify-inherit">
+                            {index % 2 !== 0 && <span className="w-1.5 h-1.5 rounded-full bg-primary/50" />}
+                            <span>{detail}</span>
+                            {index % 2 === 0 && <span className="w-1.5 h-1.5 rounded-full bg-primary/50" />}
+                          </li>
+                        ))}
+                      </ul>
+                    </motion.div>
+                  </div>
+
+                  {/* Center Node */}
+                  <div className="absolute left-1/2 transform -translate-x-1/2 z-10">
+                    <motion.div
+                      whileHover={{ scale: 1.2 }}
+                      className={`w-12 h-12 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}
+                    >
+                      <step.icon className="w-6 h-6 text-white" />
+                    </motion.div>
+                  </div>
+
+                  {/* Empty Space */}
+                  <div className="w-[45%]" />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Mobile/Tablet View - Single Column */}
+          <div className="lg:hidden">
+            <div className="relative">
+              {/* Left Line */}
+              <div className="absolute left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-primary to-yellow-500" />
+              
+              {pipelineSteps.map((step, index) => (
+                <motion.div
+                  key={step.title}
+                  initial={{ opacity: 0, x: -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.05 }}
+                  className="relative flex items-start mb-6 pl-16"
+                >
+                  {/* Node */}
+                  <div className="absolute left-0 z-10">
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      className={`w-12 h-12 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}
+                    >
+                      <step.icon className="w-5 h-5 text-white" />
+                    </motion.div>
+                  </div>
+
+                  {/* Content Card */}
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className="flex-1 bg-card/80 backdrop-blur-sm border border-border rounded-xl p-4 hover:border-primary/50 transition-all"
+                  >
+                    <h3 className="font-bold text-foreground mb-1">{step.title}</h3>
+                    {step.subtitle && (
+                      <p className="text-xs text-primary mb-2">{step.subtitle}</p>
+                    )}
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      {step.details.map((detail, i) => (
+                        <li key={i} className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary/50" />
+                          <span>{detail}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Summary Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4"
+          >
+            {[
+              { value: "12", label: "Pipeline Stages" },
+              { value: "<100ms", label: "Query Latency" },
+              { value: "99.9%", label: "Accuracy Rate" },
+              { value: "∞", label: "Scalability" }
+            ].map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-4 text-center hover:border-primary/50 transition-all"
+              >
+                <div className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+                  {stat.value}
+                </div>
+                <div className="text-sm text-muted-foreground">{stat.label}</div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+};
