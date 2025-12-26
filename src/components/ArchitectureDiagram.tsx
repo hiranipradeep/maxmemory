@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   FileText, 
   Settings, 
@@ -12,7 +13,11 @@ import {
   LayoutGrid, 
   Brain, 
   MessageSquare,
-  ChevronDown
+  ChevronDown,
+  X,
+  CheckCircle2,
+  Clock,
+  Gauge
 } from "lucide-react";
 
 const pipelineSteps = [
@@ -21,143 +26,338 @@ const pipelineSteps = [
     title: "Document Ingestion",
     subtitle: "User / System Input",
     details: ["PDF, DOCX, TXT", "Web URL, Email", "Notes & Documents"],
-    color: "from-blue-500 to-cyan-500"
+    color: "from-blue-500 to-cyan-500",
+    expandedInfo: {
+      description: "The entry point where all your documents and data sources are captured and prepared for processing.",
+      capabilities: [
+        "Support for 50+ file formats",
+        "Direct URL content extraction",
+        "Email attachment processing",
+        "Real-time API ingestion"
+      ],
+      metrics: { throughput: "10K docs/min", formats: "50+", latency: "<50ms" }
+    }
   },
   {
     icon: Settings,
     title: "Pre-Processing Layer",
     details: ["File validation", "Language detection", "Text extraction (OCR)", "Metadata extraction"],
-    color: "from-cyan-500 to-teal-500"
+    color: "from-cyan-500 to-teal-500",
+    expandedInfo: {
+      description: "Validates and prepares documents for processing, extracting text from images and handling various encodings.",
+      capabilities: [
+        "Multi-language OCR support",
+        "Automatic encoding detection",
+        "Format validation & sanitization",
+        "Rich metadata extraction"
+      ],
+      metrics: { accuracy: "99.5%", languages: "100+", latency: "<100ms" }
+    }
   },
   {
     icon: Sparkles,
     title: "Content Cleaning",
     details: ["Remove noise", "Normalize text", "Section detection", "Paragraph structuring"],
-    color: "from-teal-500 to-green-500"
+    color: "from-teal-500 to-green-500",
+    expandedInfo: {
+      description: "Cleans and structures raw text, removing irrelevant content while preserving semantic meaning.",
+      capabilities: [
+        "Header/footer removal",
+        "Advertisement filtering",
+        "Unicode normalization",
+        "Intelligent paragraph detection"
+      ],
+      metrics: { noiseReduction: "95%", accuracy: "99%", latency: "<30ms" }
+    }
   },
   {
     icon: Layers,
     title: "Chunking Engine",
     details: ["Semantic chunking", "Token optimization", "Context-preserving splits"],
-    color: "from-green-500 to-emerald-500"
+    color: "from-green-500 to-emerald-500",
+    expandedInfo: {
+      description: "Intelligently splits documents into optimally-sized chunks while maintaining semantic coherence.",
+      capabilities: [
+        "Semantic boundary detection",
+        "Overlapping chunk strategy",
+        "Token budget optimization",
+        "Cross-reference preservation"
+      ],
+      metrics: { avgChunkSize: "512 tokens", overlap: "10%", coherence: "98%" }
+    }
   },
   {
     icon: Cpu,
     title: "Embedding Generation",
     details: ["Chunks → Vectors", "OpenAI / BGE / E5", "High-dimensional space"],
-    color: "from-emerald-500 to-primary"
+    color: "from-emerald-500 to-primary",
+    expandedInfo: {
+      description: "Converts text chunks into high-dimensional vector embeddings for semantic search and retrieval.",
+      capabilities: [
+        "Multiple embedding models",
+        "Batch processing support",
+        "GPU-accelerated inference",
+        "Custom fine-tuning options"
+      ],
+      metrics: { dimensions: "1536", models: "10+", latency: "<20ms" }
+    }
   },
   {
     icon: Database,
     title: "Vector Storage",
     details: ["Pinecone / Weaviate", "FAISS indexing", "User isolation"],
-    color: "from-primary to-violet-500"
+    color: "from-primary to-violet-500",
+    expandedInfo: {
+      description: "Stores and indexes vector embeddings for lightning-fast similarity search at scale.",
+      capabilities: [
+        "Horizontal scaling",
+        "Multi-tenant isolation",
+        "Real-time updates",
+        "Backup & replication"
+      ],
+      metrics: { capacity: "1B+ vectors", queryTime: "<10ms", uptime: "99.99%" }
+    }
   },
   {
     icon: Network,
     title: "Knowledge Graph",
     subtitle: "Optional Enhancement",
     details: ["Entity extraction", "Relationship mapping", "Cross-doc linking"],
-    color: "from-violet-500 to-purple-500"
+    color: "from-violet-500 to-purple-500",
+    expandedInfo: {
+      description: "Builds semantic relationships between entities across your entire document corpus.",
+      capabilities: [
+        "Named entity recognition",
+        "Relationship inference",
+        "Temporal linking",
+        "Graph traversal queries"
+      ],
+      metrics: { entities: "500+ types", relationships: "100+", accuracy: "95%" }
+    }
   },
   {
     icon: Zap,
     title: "Memory Optimization",
     details: ["Deduplication", "Importance scoring", "Relevance weighting"],
-    color: "from-purple-500 to-pink-500"
+    color: "from-purple-500 to-pink-500",
+    expandedInfo: {
+      description: "Continuously optimizes stored memories for relevance, removing duplicates and scoring importance.",
+      capabilities: [
+        "Fuzzy deduplication",
+        "Decay algorithms",
+        "Importance ranking",
+        "Memory consolidation"
+      ],
+      metrics: { dedupeRate: "30%", scoreAccuracy: "97%", savings: "40%" }
+    }
   },
   {
     icon: Search,
     title: "Query & Recall",
     details: ["Semantic search", "Top-K retrieval", "Similarity matching"],
-    color: "from-pink-500 to-rose-500"
+    color: "from-pink-500 to-rose-500",
+    expandedInfo: {
+      description: "Retrieves the most relevant memories based on semantic similarity to user queries.",
+      capabilities: [
+        "Hybrid search (semantic + keyword)",
+        "Re-ranking algorithms",
+        "Contextual boosting",
+        "Multi-query fusion"
+      ],
+      metrics: { precision: "95%", recall: "92%", latency: "<15ms" }
+    }
   },
   {
     icon: LayoutGrid,
     title: "Context Builder",
     details: ["Rank & merge chunks", "Token management", "Prompt-ready context"],
-    color: "from-rose-500 to-orange-500"
+    color: "from-rose-500 to-orange-500",
+    expandedInfo: {
+      description: "Assembles retrieved chunks into coherent context optimized for LLM consumption.",
+      capabilities: [
+        "Intelligent ranking",
+        "Token budget allocation",
+        "Context windowing",
+        "Source attribution"
+      ],
+      metrics: { maxTokens: "128K", efficiency: "95%", latency: "<5ms" }
+    }
   },
   {
     icon: Brain,
     title: "LLM Reasoning",
     details: ["GPT / Claude / Local", "Memory as context", "Grounded responses"],
-    color: "from-orange-500 to-amber-500"
+    color: "from-orange-500 to-amber-500",
+    expandedInfo: {
+      description: "Leverages large language models with memory-augmented context for accurate, grounded responses.",
+      capabilities: [
+        "Multi-model support",
+        "Streaming responses",
+        "Chain-of-thought reasoning",
+        "Hallucination detection"
+      ],
+      metrics: { models: "GPT-4, Claude, Llama", accuracy: "98%", streaming: "Yes" }
+    }
   },
   {
     icon: MessageSquare,
     title: "Response & Update",
     details: ["Answer to user", "Feedback loop", "Memory reinforcement"],
-    color: "from-amber-500 to-yellow-500"
+    color: "from-amber-500 to-yellow-500",
+    expandedInfo: {
+      description: "Delivers responses to users while updating memory based on interactions and feedback.",
+      capabilities: [
+        "Real-time delivery",
+        "Feedback collection",
+        "Memory reinforcement",
+        "Continuous learning"
+      ],
+      metrics: { responseTime: "<100ms", feedbackLoop: "Active", learning: "Real-time" }
+    }
   }
 ];
 
-// Animated data flow particle component
-const DataFlowParticle = ({ delay = 0 }: { delay?: number }) => (
-  <motion.div
-    className="absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-primary shadow-lg shadow-primary/50"
-    initial={{ y: 0, opacity: 0, scale: 0.5 }}
-    animate={{ 
-      y: [0, 100], 
-      opacity: [0, 1, 1, 0],
-      scale: [0.5, 1, 1, 0.5]
-    }}
-    transition={{
-      duration: 2,
-      delay,
-      repeat: Infinity,
-      ease: "easeInOut"
-    }}
-  />
-);
-
-// Animated connecting arrow between stages
-const FlowArrow = ({ index }: { index: number }) => (
-  <div className="absolute left-1/2 -translate-x-1/2 h-8 flex flex-col items-center justify-center" style={{ top: '100%' }}>
-    {/* Animated line */}
-    <div className="relative w-0.5 h-full overflow-hidden">
-      <motion.div
-        className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary/20 to-primary"
-        initial={{ y: '-100%' }}
-        animate={{ y: '100%' }}
-        transition={{
-          duration: 1.5,
-          delay: index * 0.15,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-      />
-    </div>
-    {/* Arrow head */}
+// Expanded detail modal component
+const ExpandedNodeModal = ({ 
+  step, 
+  onClose,
+  isRight
+}: { 
+  step: typeof pipelineSteps[0]; 
+  onClose: () => void;
+  isRight: boolean;
+}) => {
+  return (
     <motion.div
-      animate={{ y: [0, 3, 0] }}
-      transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9, y: 10 }}
+      className={`absolute z-50 w-80 md:w-96 ${
+        isRight ? 'left-full ml-4' : 'right-full mr-4'
+      } top-1/2 -translate-y-1/2`}
     >
-      <ChevronDown className="w-4 h-4 text-primary" />
-    </motion.div>
-  </div>
-);
+      <div className={`bg-card border border-primary/30 rounded-2xl p-5 shadow-2xl shadow-primary/20 backdrop-blur-xl`}>
+        {/* Header */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}>
+              <step.icon className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h4 className="font-bold text-foreground text-lg">{step.title}</h4>
+              {step.subtitle && (
+                <p className="text-xs text-primary">{step.subtitle}</p>
+              )}
+            </div>
+          </div>
+          <button 
+            onClick={onClose}
+            className="p-1.5 rounded-full hover:bg-muted transition-colors"
+          >
+            <X className="w-4 h-4 text-muted-foreground" />
+          </button>
+        </div>
 
-// Mobile flow arrow
-const MobileFlowArrow = ({ index }: { index: number }) => (
-  <div className="absolute left-6 -translate-x-1/2 h-6 flex flex-col items-center justify-center" style={{ top: '100%' }}>
-    <div className="relative w-0.5 h-full overflow-hidden">
-      <motion.div
-        className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary/20 to-primary"
-        initial={{ y: '-100%' }}
-        animate={{ y: '100%' }}
-        transition={{
-          duration: 1.5,
-          delay: index * 0.1,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-      />
-    </div>
-  </div>
-);
+        {/* Description */}
+        <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+          {step.expandedInfo.description}
+        </p>
+
+        {/* Capabilities */}
+        <div className="mb-4">
+          <h5 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Capabilities</h5>
+          <ul className="space-y-1.5">
+            {step.expandedInfo.capabilities.map((cap, i) => (
+              <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CheckCircle2 className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                <span>{cap}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Metrics */}
+        <div className="grid grid-cols-3 gap-2">
+          {Object.entries(step.expandedInfo.metrics).map(([key, value], i) => (
+            <div key={key} className="bg-muted/50 rounded-lg p-2 text-center">
+              <div className="text-xs text-muted-foreground capitalize mb-0.5">
+                {key.replace(/([A-Z])/g, ' $1').trim()}
+              </div>
+              <div className="text-sm font-semibold text-foreground">{value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Decorative arrow */}
+        <div 
+          className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-card border-l border-t border-primary/30 ${
+            isRight ? '-left-1.5 rotate-[-45deg]' : '-right-1.5 rotate-[135deg]'
+          }`}
+        />
+      </div>
+    </motion.div>
+  );
+};
+
+// Mobile expanded card
+const MobileExpandedCard = ({ 
+  step, 
+  onClose 
+}: { 
+  step: typeof pipelineSteps[0]; 
+  onClose: () => void;
+}) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      exit={{ opacity: 0, height: 0 }}
+      className="overflow-hidden"
+    >
+      <div className="pt-4 border-t border-border mt-4">
+        <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+          {step.expandedInfo.description}
+        </p>
+
+        <div className="mb-3">
+          <h5 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Capabilities</h5>
+          <ul className="space-y-1">
+            {step.expandedInfo.capabilities.map((cap, i) => (
+              <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CheckCircle2 className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                <span>{cap}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          {Object.entries(step.expandedInfo.metrics).map(([key, value]) => (
+            <div key={key} className="bg-muted/50 rounded-lg p-2 text-center">
+              <div className="text-[10px] text-muted-foreground capitalize">
+                {key.replace(/([A-Z])/g, ' $1').trim()}
+              </div>
+              <div className="text-xs font-semibold text-foreground">{value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 export const ArchitectureDiagram = () => {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [mobileExpandedIndex, setMobileExpandedIndex] = useState<number | null>(null);
+
+  const handleNodeClick = (index: number) => {
+    setExpandedIndex(expandedIndex === index ? null : index);
+  };
+
+  const handleMobileCardClick = (index: number) => {
+    setMobileExpandedIndex(mobileExpandedIndex === index ? null : index);
+  };
+
   return (
     <section className="py-24 px-4 relative overflow-hidden">
       {/* Background Effects */}
@@ -182,6 +382,7 @@ export const ArchitectureDiagram = () => {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             A comprehensive pipeline that transforms your documents into intelligent, queryable memory
           </p>
+          <p className="text-sm text-primary mt-2">Click on any node to explore details</p>
         </motion.div>
 
         {/* Pipeline Diagram */}
@@ -289,11 +490,15 @@ export const ArchitectureDiagram = () => {
                     </motion.div>
                   </div>
 
-                  {/* Center Node */}
+                  {/* Center Node - Clickable */}
                   <div className="absolute left-1/2 transform -translate-x-1/2 z-10">
-                    <motion.div
+                    <motion.button
+                      onClick={() => handleNodeClick(index)}
                       whileHover={{ scale: 1.2 }}
-                      className={`relative w-14 h-14 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}
+                      whileTap={{ scale: 0.95 }}
+                      className={`relative w-14 h-14 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg cursor-pointer ${
+                        expandedIndex === index ? 'ring-4 ring-primary/50 ring-offset-2 ring-offset-background' : ''
+                      }`}
                     >
                       {/* Pulse ring */}
                       <motion.div
@@ -302,7 +507,18 @@ export const ArchitectureDiagram = () => {
                         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                       />
                       <step.icon className="w-6 h-6 text-white relative z-10" />
-                    </motion.div>
+                    </motion.button>
+                    
+                    {/* Expanded Modal */}
+                    <AnimatePresence>
+                      {expandedIndex === index && (
+                        <ExpandedNodeModal 
+                          step={step} 
+                          onClose={() => setExpandedIndex(null)}
+                          isRight={index % 2 === 0}
+                        />
+                      )}
+                    </AnimatePresence>
                     
                     {/* Downward arrow indicator (except last) */}
                     {index < pipelineSteps.length - 1 && (
@@ -355,11 +571,17 @@ export const ArchitectureDiagram = () => {
                   transition={{ delay: index * 0.05 }}
                   className="relative flex items-start mb-8 pl-16"
                 >
-                  {/* Node */}
-                  <div className="absolute left-0 z-10">
+                  {/* Node - Clickable */}
+                  <button
+                    onClick={() => handleMobileCardClick(index)}
+                    className="absolute left-0 z-10"
+                  >
                     <motion.div
                       whileHover={{ scale: 1.1 }}
-                      className={`relative w-12 h-12 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}
+                      whileTap={{ scale: 0.95 }}
+                      className={`relative w-12 h-12 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg ${
+                        mobileExpandedIndex === index ? 'ring-4 ring-primary/50 ring-offset-2 ring-offset-background' : ''
+                      }`}
                     >
                       {/* Pulse ring */}
                       <motion.div
@@ -369,14 +591,25 @@ export const ArchitectureDiagram = () => {
                       />
                       <step.icon className="w-5 h-5 text-white relative z-10" />
                     </motion.div>
-                  </div>
+                  </button>
 
-                  {/* Content Card */}
+                  {/* Content Card - Clickable */}
                   <motion.div
+                    onClick={() => handleMobileCardClick(index)}
                     whileHover={{ scale: 1.02 }}
-                    className="flex-1 bg-card/80 backdrop-blur-sm border border-border rounded-xl p-4 hover:border-primary/50 transition-all"
+                    className={`flex-1 bg-card/80 backdrop-blur-sm border rounded-xl p-4 transition-all cursor-pointer ${
+                      mobileExpandedIndex === index ? 'border-primary shadow-lg shadow-primary/10' : 'border-border hover:border-primary/50'
+                    }`}
                   >
-                    <h3 className="font-bold text-foreground mb-1">{step.title}</h3>
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-bold text-foreground">{step.title}</h3>
+                      <motion.div
+                        animate={{ rotate: mobileExpandedIndex === index ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                      </motion.div>
+                    </div>
                     {step.subtitle && (
                       <p className="text-xs text-primary mb-2">{step.subtitle}</p>
                     )}
@@ -388,6 +621,13 @@ export const ArchitectureDiagram = () => {
                         </li>
                       ))}
                     </ul>
+
+                    {/* Expanded content */}
+                    <AnimatePresence>
+                      {mobileExpandedIndex === index && (
+                        <MobileExpandedCard step={step} onClose={() => setMobileExpandedIndex(null)} />
+                      )}
+                    </AnimatePresence>
                   </motion.div>
                 </motion.div>
               ))}
